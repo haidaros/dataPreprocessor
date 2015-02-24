@@ -1,17 +1,18 @@
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
  * Created by eg on 24/02/15.
  * //todo
- * NumberCorrection
  * csv file out
+ * merge two file
  */
 public class DataExporter {
     double testRate;
@@ -22,7 +23,6 @@ public class DataExporter {
     String[] excludedColumns;
     List<Column> columnNames;
     HSSFWorkbook workbook;
-
     //Result Sets;
     List<LinkedHashMap<String, String>> trainingSet;
     List<LinkedHashMap<String, String>> testSet;
@@ -96,8 +96,8 @@ public class DataExporter {
     }
 
     private void fingIndexes() {
-        List<Integer> zeroIndexs = new ArrayList<Integer>();
-        List<Integer> bugyIndexs = new ArrayList<Integer>();
+        zeroIndexs = new ArrayList<Integer>();
+        bugyIndexs = new ArrayList<Integer>();
         for (int k = 0; k < classes.size(); k++) {
             LinkedHashMap<String, String> m = classes.get(k);
             if (Double.valueOf(m.get(bugTableHeader)) == 0) {
@@ -160,11 +160,11 @@ public class DataExporter {
         this.bugTableHeader = bugTableHeader;
     }
 
-    public void getTestCSV() {
+    public void getTestCSV(String outputfileName) {
 
     }
 
-    public void getTrainingCSV() {
+    public void getTrainingCSV(String outputfileName) {
 
     }
 
@@ -172,7 +172,7 @@ public class DataExporter {
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet shtest = wb.createSheet("testSet");
         createHeaders(shtest);
-        fillExcelData(testSet, shtest);
+        fillExcelData(testSet, shtest, wb);
         FileOutputStream out =
                 new FileOutputStream(new File(outputfileName));
         wb.write(out);
@@ -183,7 +183,7 @@ public class DataExporter {
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet shtest = wb.createSheet("testSet");
         createHeaders(shtest);
-        fillExcelData(testSet, shtest);
+        fillExcelData(testSet, shtest, wb);
         FileOutputStream out =
                 new FileOutputStream(new File(outputfileName));
         wb.write(out);
@@ -200,14 +200,21 @@ public class DataExporter {
         }
     }
 
-    private void fillExcelData(List<LinkedHashMap<String, String>> file, Sheet sh) {
+    private void fillExcelData(List<LinkedHashMap<String, String>> file, Sheet sh, Workbook wb) {
         int rownum = 1;
+        DataFormat format = wb.createDataFormat();
+        CellStyle style;
         for (Map<String, String> m : file) {
             Row row = sh.createRow(rownum);
             Iterator<String> iterator = m.values().iterator();
             for (int k = 0; iterator.hasNext(); k++) {
                 Cell cell = row.createCell(k);
                 cell.setCellValue(iterator.next());
+                style = wb.createCellStyle();
+                if (k > 0) {
+                    style.setDataFormat(format.getFormat("0.0"));
+                }
+                cell.setCellStyle(style);
             }
             rownum++;
         }
