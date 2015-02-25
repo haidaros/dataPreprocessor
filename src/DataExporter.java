@@ -1,17 +1,14 @@
+import com.opencsv.CSVWriter;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
  * Created by eg on 24/02/15.
  * //todo
- * csv file out
  * merge two file
  */
 public class DataExporter {
@@ -160,13 +157,36 @@ public class DataExporter {
         this.bugTableHeader = bugTableHeader;
     }
 
-    public void getTestCSV(String outputfileName) {
-
+    public void getTestCSV(String outputfileName) throws Exception {
+        CSVWriter writer = new CSVWriter(new FileWriter(outputfileName));
+        List<String[]> data = new ArrayList<String[]>();
+        data.add(createHeadersforCSV());
+        createContextforCSV(testSet, data);
+        writer.writeAll(data);
+        writer.close();
     }
 
-    public void getTrainingCSV(String outputfileName) {
 
+    public void getTrainingCSV(String outputfileName) throws IOException {
+        CSVWriter writer = new CSVWriter(new FileWriter(outputfileName));
+        List<String[]> data = new ArrayList<String[]>();
+        data.add(createHeadersforCSV());
+        createContextforCSV(trainingSet, data);
+        writer.writeAll(data);
+        writer.close();
     }
+
+    private void createContextforCSV(List<LinkedHashMap<String, String>> set, List<String[]> data) {
+        for (Map<String, String> m : set) {
+            String[] str = new String[m.size()];
+            Iterator<String> iterator = m.values().iterator();
+            for (int k = 0; iterator.hasNext(); k++) {
+                str[k] = iterator.next();
+            }
+            data.add(str);
+        }
+    }
+
 
     public void getTestExcel(String outputfileName) throws Exception {
         HSSFWorkbook wb = new HSSFWorkbook();
@@ -198,6 +218,16 @@ public class DataExporter {
             cell.setCellValue(s.getKey());
             i++;
         }
+    }
+
+    private String[] createHeadersforCSV() {
+        String[] headers = new String[columnNames.size()];
+        int i = 0;
+        for (Column c : columnNames) {
+            headers[i] = c.getKey();
+            i++;
+        }
+        return headers;
     }
 
     private void fillExcelData(List<LinkedHashMap<String, String>> file, Sheet sh, Workbook wb) {
