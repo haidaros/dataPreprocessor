@@ -16,14 +16,15 @@ public class DataExporterTest {
     }
 
     public DataExporterTest() throws Exception {
-        File inputFile = new File("/Users/eg/Desktop/Projects/dataPreprocessor/datasets/equinox/change-metrics.xls");
+        File inputFile = new File("/Users/eg/Desktop/Projects/dataPreprocessor/datasets/mylyn/change-metrics.xls");
         FileInputStream file = new FileInputStream(inputFile);
-        String exclusion = "nonTrivialBugs,majorBugs,criticalBugs,highPriorityBugs";
+        String exclusion = "nonTrivialBugs,majorBugs,criticalBugs,highPriorityBugs,classname";
         de = new DataExporter(0.25, "bugs", file, exclusion);
         de.process();
-        de.getTrainingExcel("trainingExcel.xls");
-        de.getTestExcel("testExcel.xls");
-        de.getTestCSV("textCSV");
+//        de.getTrainingExcel("trainingExcel.xls");
+//        de.getTestExcel("testExcel.xls");
+        de.getTestCSV("test.csv");
+        de.getTrainingCSV("training.csv");
         System.out.println("file = " + file);
     }
 }

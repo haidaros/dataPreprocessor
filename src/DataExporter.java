@@ -33,12 +33,12 @@ public class DataExporter {
 
     public void process() {
         exportDatafromwb();
-        fingIndexes();
+        findIndexes();
         splitTestSet();
         replicateTrainingData();
         createTrainingSet();
     }
-    
+
 
     private void createTrainingSet() {
         //MainDataCreation
@@ -93,7 +93,7 @@ public class DataExporter {
         }
     }
 
-    private void fingIndexes() {
+    private void findIndexes() {
         zeroIndexs = new ArrayList<Integer>();
         bugyIndexs = new ArrayList<Integer>();
         for (int k = 0; k < classes.size(); k++) {
@@ -136,7 +136,11 @@ public class DataExporter {
             Row entry = rowIterator.next();
             LinkedHashMap<String, String> obj = new LinkedHashMap<String, String>();
             for (Column c : columnNames) {
-                obj.put(c.getKey(), entry.getCell(c.getValue()).toString());
+                try {
+                    obj.put(c.getKey(), String.valueOf(entry.getCell(c.getValue()).getNumericCellValue()).trim());
+                } catch (Exception ex) {
+                    obj.put(c.getKey(), String.valueOf(entry.getCell(c.getValue()).toString()).trim());
+                }
             }
             classes.add(obj);
         }
@@ -163,17 +167,16 @@ public class DataExporter {
         List<String[]> data = new ArrayList<String[]>();
         data.add(createHeadersforCSV());
         createContextforCSV(testSet, data);
-        writer.writeAll(data);
+        writer.writeAll(data, false);
         writer.close();
     }
-
 
     public void getTrainingCSV(String outputfileName) throws IOException {
         CSVWriter writer = new CSVWriter(new FileWriter(outputfileName));
         List<String[]> data = new ArrayList<String[]>();
         data.add(createHeadersforCSV());
         createContextforCSV(trainingSet, data);
-        writer.writeAll(data);
+        writer.writeAll(data, false);
         writer.close();
     }
 
@@ -187,7 +190,6 @@ public class DataExporter {
             data.add(str);
         }
     }
-
 
     public void getTestExcel(String outputfileName) throws Exception {
         HSSFWorkbook wb = new HSSFWorkbook();
