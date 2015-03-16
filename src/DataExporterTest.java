@@ -3,6 +3,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Name;
 
 
 import java.io.File;
@@ -28,7 +29,7 @@ public class DataExporterTest {
     }
 
     public DataExporterTest() throws Exception {
-        File inputFile = new File("/Users/eg/Desktop/Projects/dataPreprocessor/datasets/equinox/single-version-ck-oo.xls");
+        File inputFile = new File("/Users/eg/Desktop/Projects/dataPreprocessor/datasets/mylyn/single-version-ck-oo.xls");
         FileInputStream file = new FileInputStream(inputFile);
         String exclusion = "nonTrivialBugs,majorBugs,criticalBugs,highPriorityBugs";
         de = new DataExporter(0.25, "bugs", file, exclusion);
@@ -47,18 +48,14 @@ public class DataExporterTest {
         wk.train();
         wk.fillSVM(de.testList);
         createResultFile(de.testList);
-        System.out.println("yeha");
     }
 
     public void createResultFile(List<DataEntry> list) throws IOException {
         FileInputStream fis = new FileInputStream("templateResult.xls");
         HSSFWorkbook wb = new HSSFWorkbook(fis);
         HSSFSheet sheet = wb.getSheetAt(0);
-        int locfornow = 0;
-        int bugfornow = 0;
-        int numbers[] = calculateLocandBug(list);
-        int totalBug = numbers[0];
-        int totalLoc = numbers[1];
+        int deface = 2;
+        int rowNum = list.size();
         Collections.sort(list, new DensityComparer());
         createOptimal(wb, list);
         Collections.sort(list, new linearRegressionDensityComparer());
@@ -67,6 +64,35 @@ public class DataExporterTest {
         createibk(wb, list);
         Collections.sort(list, new svmDensityComparer());
         createSVM(wb, list);
+        //Test//
+        Name rangeCell = wb.getName("opPLoc");
+        String reference = sheet.getSheetName() + "!$D$" + (deface + 1) + ":$D$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        rangeCell = wb.getName("opPBug");
+        reference = sheet.getSheetName() + "!$E$" + (deface + 1) + ":$E$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        sheet = wb.getSheetAt(1);
+        rangeCell = wb.getName("linPLoc");
+        reference = sheet.getSheetName() + "!$C$" + (deface + 1) + ":$C$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        rangeCell = wb.getName("linPBug");
+        reference = sheet.getSheetName() + "!$D$" + (deface + 1) + ":$D$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        sheet = wb.getSheetAt(2);
+        rangeCell = wb.getName("ibkPLoc");
+        reference = sheet.getSheetName() + "!$C$" + (deface + 1) + ":$C$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        rangeCell = wb.getName("ibkPBug");
+        reference = sheet.getSheetName() + "!$D$" + (deface + 1) + ":$D$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        sheet = wb.getSheetAt(3);
+        rangeCell = wb.getName("svmPLoc");
+        reference = sheet.getSheetName() + "!$C$" + (deface + 1) + ":$C$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        rangeCell = wb.getName("svmPBug");
+        reference = sheet.getSheetName() + "!$D$" + (deface + 1) + ":$D$" + (rowNum + deface);
+        rangeCell.setRefersToFormula(reference);
+        //Test//
         FileOutputStream out = new FileOutputStream(new File("result.xls"));
         wb.write(out);
         out.close();
@@ -85,7 +111,10 @@ public class DataExporterTest {
             //loc
             Cell cell = row.createCell(0);
             cell.setCellValue(e.getLoc());
+            System.out.println("locfornow = " + locfornow + "e.getLoc()" + e.getLoc());
             locfornow += e.getLoc();
+            System.out.println("locfornow = " + locfornow);
+            System.out.println("totalLoc = " + totalLoc);
             //bugs
             cell = row.createCell(1);
             cell.setCellValue(e.getBug());
@@ -96,13 +125,14 @@ public class DataExporterTest {
             //todo
             //percentage of loc
             cell = row.createCell(3);
-            double res = (double) (locfornow + e.getLoc()) / totalLoc;
-            cell.setCellValue(res > 1 ? 1 : res);
+            double res = ((double) (locfornow)) / totalLoc;
+            System.out.println("res = " + res);
+            cell.setCellValue(res);
 
             //percentega of bug
             cell = row.createCell(4);
-            double res1 = (double) (bugfornow + e.getBug()) / totalBug;
-            cell.setCellValue(res1 > 1 ? 1 : res1);
+            double res1 = (double) (bugfornow) / totalBug;
+            cell.setCellValue(res1);
             rownum++;
         }
     }
@@ -128,11 +158,11 @@ public class DataExporterTest {
 
             //percentage of loc
             cell = row.createCell(2);
-            double res = (double) (locfornow + e.getLoc()) / totalLoc;
+            double res = (double) (locfornow) / totalLoc;
             cell.setCellValue(res > 1 ? 1 : res);
             //percentega of bug
             cell = row.createCell(3);
-            double res1 = (double) (bugfornow + e.getBug()) / totalBug;
+            double res1 = (double) (bugfornow) / totalBug;
             cell.setCellValue(res1 > 1 ? 1 : res1);
 
             cell = row.createCell(4);
@@ -166,11 +196,11 @@ public class DataExporterTest {
 
             //percentage of loc
             cell = row.createCell(2);
-            double res = (double) (locfornow + e.getLoc()) / totalLoc;
+            double res = (double) (locfornow) / totalLoc;
             cell.setCellValue(res > 1 ? 1 : res);
             //percentega of bug
             cell = row.createCell(3);
-            double res1 = (double) (bugfornow + e.getBug()) / totalBug;
+            double res1 = (double) (bugfornow) / totalBug;
             cell.setCellValue(res1 > 1 ? 1 : res1);
 
             cell = row.createCell(4);
@@ -204,11 +234,11 @@ public class DataExporterTest {
 
             //percentage of loc
             cell = row.createCell(2);
-            double res = (double) (locfornow + e.getLoc()) / totalLoc;
+            double res = (double) (locfornow) / totalLoc;
             cell.setCellValue(res > 1 ? 1 : res);
             //percentega of bug
             cell = row.createCell(3);
-            double res1 = (double) (bugfornow + e.getBug()) / totalBug;
+            double res1 = (double) (bugfornow) / totalBug;
             cell.setCellValue(res1 > 1 ? 1 : res1);
 
             cell = row.createCell(4);
@@ -224,11 +254,12 @@ public class DataExporterTest {
     private int[] calculateLocandBug(List<DataEntry> testList) {
         int totalloc = 0;
         int totalbug = 0;
+        int rownum = 0;
         for (DataEntry e : testList) {
             totalbug += e.getBug();
             totalloc += e.getLoc();
+            rownum++;
         }
-        return new int[]{totalbug, totalloc};
+        return new int[]{totalbug, totalloc, rownum};
     }
-
 }
