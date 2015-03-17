@@ -31,7 +31,9 @@ public class WekaInterface {
         LinearRegression,
         IBK,
         Bayesian
-    };
+    }
+
+    ;
 
     public WekaInterface(String testFileName, String trainingFileName, wekaMode mode) throws Exception {
         ConverterUtils.DataSource training = new ConverterUtils.DataSource(trainingFileName);
