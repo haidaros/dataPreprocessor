@@ -1,3 +1,5 @@
+package dataPreprocessor;
+
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayesSimple;
 import weka.classifiers.functions.LinearRegression;
@@ -31,9 +33,7 @@ public class WekaInterface {
         LinearRegression,
         IBK,
         Bayesian
-    }
-
-    ;
+    };
 
     public WekaInterface(String testFileName, String trainingFileName, wekaMode mode) throws Exception {
         ConverterUtils.DataSource training = new ConverterUtils.DataSource(trainingFileName);
@@ -45,7 +45,6 @@ public class WekaInterface {
         trainingData.setClassIndex(trainingData.numAttributes() - 1);
         testData.setClassIndex(testData.numAttributes() - 1);
         //**
-
         if (mode == wekaMode.SMOreg) {
             classifier = new SMOreg();
         } else if (mode == wekaMode.Bayesian) {

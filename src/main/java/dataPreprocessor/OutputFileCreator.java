@@ -1,8 +1,11 @@
+package dataPreprocessor;
+
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.Row;
+import util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +20,7 @@ import java.util.List;
 public class OutputFileCreator {
 
     public void createResultFile(List<DataEntry> list) throws IOException {
-        FileInputStream fis = new FileInputStream("templateResult.xls");
+        FileInputStream fis = new FileInputStream(ResourceUtils.getPath("templateResult.xls"));
         HSSFWorkbook wb = new HSSFWorkbook(fis);
         HSSFSheet sheet = wb.getSheetAt(0);
         int deface = 2;
