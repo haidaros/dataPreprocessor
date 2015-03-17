@@ -111,7 +111,7 @@ public class DataEntry {
         str[i++] = locHeader;
         if (mode == DataExporter.Mode.BUGDENSITY) {
             str[i] = bugDensityHeader;
-        } else if (mode == DataExporter.Mode.BUGY) {
+        } else if (mode == DataExporter.Mode.CLASS) {
             str[i] = buggyHeader;
         } else if (mode == DataExporter.Mode.NOBUGS) {
             str[i] = bugTableHeader;
@@ -129,7 +129,7 @@ public class DataEntry {
         str[i++] = String.valueOf(loc);
         if (mode == DataExporter.Mode.BUGDENSITY) {
             str[i] = String.valueOf(density);
-        } else if (mode == DataExporter.Mode.BUGY) {
+        } else if (mode == DataExporter.Mode.CLASS) {
             str[i] = bugy;
         } else if (mode == DataExporter.Mode.NOBUGS) {
             str[i] = String.valueOf(bug);

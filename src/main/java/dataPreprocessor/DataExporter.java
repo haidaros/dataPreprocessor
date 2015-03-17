@@ -1,5 +1,6 @@
 package dataPreprocessor;
 
+import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -16,6 +17,8 @@ import java.util.*;
  * //delete loc and bug = 0  records
  */
 public class DataExporter {
+    static double defaultTestRate = 0.25;
+
     double testRate;
     String bugTableHeader = "bugs";
     String bugDensityHeader = "BugDensity";
@@ -31,17 +34,61 @@ public class DataExporter {
     String[] excludedColumns;
     List<Column> columnNames;
     HSSFWorkbook workbook;
+    File csvFile;
     //Mode
     Mode modeofDataExporter = Mode.NOBUGS;
 
     DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
 
-
     public enum Mode {
         NOBUGS,
         BUGDENSITY,
-        BUGY
+        CLASS,
+        BUGPRONENESS
+    }
+
+    public DataExporter(String bugTableHeader, File csvFile) throws IOException {
+        this.testRate = defaultTestRate;
+        this.bugTableHeader = bugTableHeader;
+        excludedColumns = null;
+        this.csvFile = csvFile;
+    }
+
+    public DataExporter(FileInputStream excelFile) throws IOException {
+        this.testRate = defaultTestRate;
+        this.bugTableHeader = null;
+        workbook = new HSSFWorkbook(excelFile);
+        excludedColumns = null;
+    }
+
+
+    public DataExporter(String bugTableHeader, FileInputStream excelFile) throws IOException {
+        this.testRate = defaultTestRate;
+        this.bugTableHeader = bugTableHeader;
+        workbook = new HSSFWorkbook(excelFile);
+        excludedColumns = null;
+    }
+
+    public DataExporter(double testRate, String bugTableHeader, FileInputStream excelFile) throws IOException {
+        this.testRate = testRate;
+        this.bugTableHeader = bugTableHeader;
+        workbook = new HSSFWorkbook(excelFile);
+        excludedColumns = null;
+    }
+
+    public DataExporter(String bugTableHeader, FileInputStream excelFile, String excludedHeaders) throws IOException {
+        this.testRate = defaultTestRate;
+        this.bugTableHeader = bugTableHeader;
+        workbook = new HSSFWorkbook(excelFile);
+        excludedColumns = excludedHeaders.split(",");
+    }
+
+    public DataExporter(double testRate, FileInputStream excelFile, String excludedHeaders) throws IOException {
+        this.testRate = testRate;
+        this.bugTableHeader = null;
+        workbook = new HSSFWorkbook(excelFile);
+        excludedColumns = excludedHeaders.split(",");
     }
 
     public DataExporter(double testRate, String bugTableHeader, FileInputStream excelFile, String excludedHeaders) throws IOException {
@@ -51,12 +98,71 @@ public class DataExporter {
         excludedColumns = excludedHeaders.split(",");
     }
 
-    public void process() {
-        exportDatafromwb();
+    public void process() throws Exception {
+        if (csvFile == null)
+            exportDatafromwb();
+        else
+            exportFromCSV();
         findIndexes();
         splitTestSet();
         replicateTrainingData();
         createTrainingSet();
+    }
+
+    private void exportFromCSV() throws FileNotFoundException {
+        CSVReader reader = new CSVReader(new FileReader(csvFile),';');
+        Iterator<String[]> iterator = reader.iterator();
+        exportColumnCSV(iterator.next());
+        classList = new LinkedList<DataEntry>();
+        Column bugDensity = new Column("BugDensity", bugColumnIndex + 1);
+        Column buggy = new Column("Buggy", bugColumnIndex + 2);
+        columnNames.add(bugDensity);
+        columnNames.add(buggy);
+        while (iterator.hasNext()) {
+            String[] entry = iterator.next();
+            DataEntry cl = new DataEntry();
+            for (Column c : columnNames) {
+                if (c.getKey().equals(buggyHeader)) {
+                    cl.setBugy(cl.getBug() > 0 ? "Yes" : "No");
+                } else if (c.getKey().equals(bugDensityHeader)) {
+                    if (cl.getLoc() == 0) {
+                        cl.setDensity(0.0);
+                    } else {
+                        cl.setDensity(1000 * ((double) cl.getBug() / cl.getLoc()));
+                    }
+                } else if (c.getKey().equals(locHeader)) {
+                    cl.setLoc(Double.valueOf(entry[c.getValue()]).intValue());
+                } else if (c.getKey().equals(classnameHeader)) {
+                    cl.setClassName(entry[c.getValue()]);
+                } else if (c.getKey().equals(bugTableHeader)) {
+                    cl.setBug(Integer.valueOf(entry[c.getValue()]));
+                } else {
+                    cl.addOther(c.getKey(), Double.valueOf(entry[c.getValue()]));
+                }
+            }
+            classList.add(cl);
+        }
+    }
+
+    private void exportColumnCSV(String[] headerrow) {
+        columnNames = new ArrayList<Column>();
+        for (int i = 0; i < headerrow.length; i++) {
+            boolean exclusion = false;
+            String cname = headerrow[i].trim();
+            if (excludedColumns != null) {
+                for (String s : excludedColumns) {
+                    if (cname.equals(s.trim())) {
+                        exclusion = true;
+                    }
+                }
+            }
+            if (!exclusion && !cname.equals("")) {
+                columnNames.add(new Column(cname, i));
+            }
+            if (cname.equals(buggyHeader)) {
+                bugColumnIndex = i;
+            }
+        }
     }
 
     private void createTrainingSet() {
@@ -111,9 +217,11 @@ public class DataExporter {
             Cell cell = cellIterator.next();
             boolean exclusion = false;
             String cname = cell.getStringCellValue().trim();
-            for (String s : excludedColumns) {
-                if (cname.equals(s.trim())) {
-                    exclusion = true;
+            if (excludedColumns != null) {
+                for (String s : excludedColumns) {
+                    if (cname.equals(s.trim())) {
+                        exclusion = true;
+                    }
                 }
             }
             if (!exclusion && !cname.equals("")) {
@@ -235,7 +343,7 @@ public class DataExporter {
                     i++;
                 }
             } else if (c.getKey().equals(buggyHeader)) {
-                if (modeofDataExporter == Mode.BUGY) {
+                if (modeofDataExporter == Mode.CLASS) {
                     headers[i] = c.getKey();
                     i++;
                 }
