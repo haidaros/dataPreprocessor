@@ -62,6 +62,12 @@ public class DataExporter {
         excludedColumns = null;
     }
 
+    public DataExporter(File csvFile) throws IOException {
+        this.testRate = defaultTestRate;
+        this.bugTableHeader = null;
+        excludedColumns = null;
+        this.csvFile = csvFile;
+    }
 
     public DataExporter(String bugTableHeader, FileInputStream excelFile) throws IOException {
         this.testRate = defaultTestRate;
@@ -110,7 +116,7 @@ public class DataExporter {
     }
 
     private void exportFromCSV() throws FileNotFoundException {
-        CSVReader reader = new CSVReader(new FileReader(csvFile),';');
+        CSVReader reader = new CSVReader(new FileReader(csvFile), ';');
         Iterator<String[]> iterator = reader.iterator();
         exportColumnCSV(iterator.next());
         classList = new LinkedList<DataEntry>();

@@ -1,6 +1,8 @@
 package dataPreprocessor;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,7 +14,7 @@ public class DataEntry {
     static String buggyHeader = "Buggy";
     static String locHeader = "numberOfLinesOfCode";
     static String bugTableHeader = "bugs";
-
+    List<Prediction> predictions;
     String className;
     int bug;
     double density;
@@ -25,6 +27,7 @@ public class DataEntry {
     //SVM
     double svmprediction;
     double svmpredictionDensinty;
+
     int loc;
     String bugy;
     LinkedHashMap<String, Double> others;
@@ -101,6 +104,14 @@ public class DataEntry {
         others.put(key, numericCellValue);
     }
 
+    public List<Prediction> getPredictions() {
+        return predictions;
+    }
+
+    public void setPredictions(List<Prediction> predictions) {
+        this.predictions = predictions;
+    }
+
     public String[] createHeaderFileforCSV(DataExporter.Mode mode) {
         String[] str = new String[others.size() + 2];
         int i = 0;
@@ -143,6 +154,12 @@ public class DataEntry {
         return false;
     }
 
+    public void addPrediction(Prediction prediction) {
+        if (predictions == null)
+            predictions = new ArrayList<Prediction>();
+        predictions.add(prediction);
+    }
+
     public double getPredictionDensinty() {
         return predictionDensinty;
     }
@@ -182,4 +199,6 @@ public class DataEntry {
     public void setIbkprediction(double ibkprediction) {
         this.ibkprediction = ibkprediction;
     }
+
+
 }

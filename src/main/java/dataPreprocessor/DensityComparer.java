@@ -6,7 +6,6 @@ import java.util.Comparator;
  * Created by eg on 11/03/15.
  */
 public class DensityComparer implements Comparator<DataEntry> {
-    @Override
     public int compare(DataEntry o1, DataEntry o2) {
         if (o1.density >= o2.density)
             return -1;
@@ -16,7 +15,6 @@ public class DensityComparer implements Comparator<DataEntry> {
 }
 
 class linearRegressionDensityComparer implements Comparator<DataEntry> {
-    @Override
     public int compare(DataEntry o1, DataEntry o2) {
         if (o1.predictionDensinty >= o2.predictionDensinty)
             return -1;
@@ -27,7 +25,6 @@ class linearRegressionDensityComparer implements Comparator<DataEntry> {
 
 
 class ibkDensityComparer implements Comparator<DataEntry> {
-    @Override
     public int compare(DataEntry o1, DataEntry o2) {
         if (o1.ibkpredictionDensinty >= o2.ibkpredictionDensinty)
             return -1;
@@ -38,10 +35,43 @@ class ibkDensityComparer implements Comparator<DataEntry> {
 
 
 class svmDensityComparer implements Comparator<DataEntry> {
-    @Override
     public int compare(DataEntry o1, DataEntry o2) {
         if (o1.svmpredictionDensinty >= o2.svmpredictionDensinty)
             return -1;
+        else
+            return 1;
+    }
+}
+
+class dynamicPredictionDensityComparer implements Comparator<DataEntry> {
+    int predictionIndex;
+
+    dynamicPredictionDensityComparer(int predictionIndex) {
+        this.predictionIndex = predictionIndex;
+    }
+
+    public int compare(DataEntry o1, DataEntry o2) {
+        if (o1.predictions.get(predictionIndex).getPredictionDensinty() > o2.predictions.get(predictionIndex).getPredictionDensinty())
+            return -1;
+        else if (o1.predictions.get(predictionIndex).getPredictionDensinty() == o2.predictions.get(predictionIndex).getPredictionDensinty())
+            return o1.loc >= o2.loc ? 1 : -1;
+        else
+            return 1;
+    }
+}
+
+class dynamicPredictionComparer implements Comparator<DataEntry> {
+    int predictionIndex;
+
+    dynamicPredictionComparer(int predictionIndex) {
+        this.predictionIndex = predictionIndex;
+    }
+
+    public int compare(DataEntry o1, DataEntry o2) {
+        if (o1.predictions.get(predictionIndex).getPrediction() > o2.predictions.get(predictionIndex).getPrediction())
+            return -1;
+        else if (o1.predictions.get(predictionIndex).getPrediction() == o2.predictions.get(predictionIndex).getPrediction())
+            return o1.loc >= o2.loc ? -1 : 1;
         else
             return 1;
     }
