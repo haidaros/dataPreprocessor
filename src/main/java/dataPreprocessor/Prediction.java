@@ -7,6 +7,8 @@ public class Prediction {
     String name;
     double prediction;
     double predictionDensinty;
+    double probability;
+    double distribution;
 
     public Prediction() {
     }
@@ -33,5 +35,21 @@ public class Prediction {
 
     public void setPredictionDensinty(double predictionDensinty) {
         this.predictionDensinty = predictionDensinty;
+    }
+
+    public double getProbability() {
+        return probability;
+    }
+
+    public void setProbability(double probability) {
+        this.probability = probability;
+    }
+
+    public double getDistribution() {
+        return distribution;
+    }
+
+    public void setDistribution(double distribution) {
+        this.distribution = distribution;
     }
 }

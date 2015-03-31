@@ -76,3 +76,32 @@ class dynamicPredictionComparer implements Comparator<DataEntry> {
             return 1;
     }
 }
+
+
+class dynamicProbabilityComparer implements Comparator<DataEntry> {
+    int predictionIndex;
+
+    dynamicProbabilityComparer(int predictionIndex) {
+        this.predictionIndex = predictionIndex;
+    }
+
+    public int compare(DataEntry o1, DataEntry o2) {
+        Prediction p1 = o1.predictions.get(predictionIndex);
+        Prediction p2 = o2.predictions.get(predictionIndex);
+        if (p1.getPrediction() > p2.getPrediction())
+            return -1;
+        else if (p1.prediction == p2.prediction) {
+            if (p1.probability > p2.probability) {
+                return -1;
+            } else if (p1.probability == p2.probability) {
+                if (o1.loc >= o2.loc)
+                    return -1;
+                else
+                    return 1;
+            } else {
+                return 1;
+            }
+        } else
+            return 1;
+    }
+}

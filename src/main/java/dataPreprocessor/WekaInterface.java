@@ -85,9 +85,12 @@ public class WekaInterface {
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         for (int i = 0; i < testData.numInstances(); i++) {
             Double pred = classifier.classifyInstance(testData.instance(i));
+            double[] probabilityandDistribution = classifier.distributionForInstance(testData.instance(i));
             Prediction prediction = new Prediction();
             prediction.setName(this.mode.toString());
             prediction.setPrediction(pred);
+            prediction.setProbability(probabilityandDistribution[0]);
+            prediction.setDistribution(probabilityandDistribution[1]);
             if (mode == DataExporter.Mode.NOBUGS) {
                 int loc = testList.get(i).getLoc();
                 prediction.setPredictionDensinty(loc == 0 ? 0 : (1000 * (pred / loc)));
@@ -106,37 +109,6 @@ public class WekaInterface {
             prediction.setPrediction(pred);
             prediction.setPredictionDensinty(pred);
             testList.get(i).addPrediction(prediction);
-        }
-    }
-
-    //Old methods
-    public void fillLinearRegression(List<DataEntry> testList) throws Exception {
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        for (int i = 0; i < testData.numInstances(); i++) {
-            Double pred = classifier.classifyInstance(testData.instance(i));
-            testList.get(i).setPrediction(pred);
-            int loc = testList.get(i).getLoc();
-            testList.get(i).setPredictionDensinty(loc == 0 ? 0 : (1000 * (pred / loc)));
-        }
-    }
-
-    public void fillIBK(List<DataEntry> testList) throws Exception {
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        for (int i = 0; i < testData.numInstances(); i++) {
-            Double pred = classifier.classifyInstance(testData.instance(i));
-            testList.get(i).setIbkprediction(pred);
-            int loc = testList.get(i).getLoc();
-            testList.get(i).setIbkpredictionDensinty(loc == 0 ? 0 : (1000 * (pred / loc)));
-        }
-    }
-
-    public void fillSVM(List<DataEntry> testList) throws Exception {
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        for (int i = 0; i < testData.numInstances(); i++) {
-            Double pred = classifier.classifyInstance(testData.instance(i));
-            testList.get(i).setSvmprediction(pred);
-            int loc = testList.get(i).getLoc();
-            testList.get(i).setSvmpredictionDensinty(loc == 0 ? 0 : (1000 * (pred / loc)));
         }
     }
 }

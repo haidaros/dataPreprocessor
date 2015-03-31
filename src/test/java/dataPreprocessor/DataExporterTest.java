@@ -188,7 +188,7 @@ public class DataExporterTest {
         File f = ResourceUtils.getFile("datasets/mylyn/single-version-ck-oo.csv");
         String exclusion = "nonTrivialBugs,majorBugs,criticalBugs,highPriorityBugs";
         DataExporter dataExporter = new DataExporter("bugs", f);
-        dataExporter.setModeofDataExporter(DataExporter.Mode.BUGDENSITY);
+        dataExporter.setModeofDataExporter(DataExporter.Mode.CLASS);
         dataExporter.process();
         dataExporter.getTestCSV("test.csv");
         dataExporter.getTrainingCSV("training.csv");
@@ -198,10 +198,10 @@ public class DataExporterTest {
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.RandomForest);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
-        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.MultiplayerPerception);
+        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBK);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
-        OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.modeofDataExporter);
+        OutputFileCreator outputFileCreator = new OutputFileCreator(DataExporter.Mode.BUGPRONENESS);
         outputFileCreator.createResult(dataExporter.testList, "resultProne.xls");
     }
 }
