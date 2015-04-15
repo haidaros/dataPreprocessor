@@ -20,16 +20,13 @@ import static dataPreprocessor.DataExporter.Mode.*;
  */
 public class OutputFileCreator {
     private DataExporter.Mode mode = NOBUGS;
-
     private String resultfileName = "result.xls";
-
     private String[] numericHeaders = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs",
             "PredictedNumberofBugs", "PredictedDensity"};
-
-    private String[] optimalHeaders = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Density"};
-    private String[] densityHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Predicted Density"};
-    private String[] classHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Prediction"};
-    private String[] pronenessHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Probability"};
+    private String[] optimalHeaders = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Density", "Area"};
+    private String[] densityHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Predicted Density", "Area"};
+    private String[] classHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Prediction", "Area"};
+    private String[] pronenessHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Probability", "Area"};
 
     public OutputFileCreator(DataExporter.Mode modeofDataExporter) {
         this.mode = modeofDataExporter;
@@ -62,6 +59,8 @@ public class OutputFileCreator {
         //Data
         XSSFSheet sheet = wb.createSheet("Optimal");
         Collections.sort(list, new DensityComparer());
+        calculatePercentages(list);
+        calculateAreaBelow(list);
         int rowNum = createOptimal(sheet, list);
         fillFormulate(sheet, "Optimal", rowNum, data);
         createRandomOrder(sheet, data);
@@ -73,6 +72,11 @@ public class OutputFileCreator {
             else
                 Collections.sort(list, new dynamicPredictionDensityComparer(i));
             String sheetName = list.get(0).getPredictions().get(i).getName();
+            //todo
+            //Area Calculation
+            //percentageCalculation
+            calculatePercentages(list);
+            calculateAreaBelow(list);
             sheet = wb.createSheet(sheetName);
             rowNum = fillExcel(sheet, list, i);
             fillFormulate(sheet, sheetName, rowNum, data);
@@ -82,6 +86,34 @@ public class OutputFileCreator {
         FileOutputStream out = new FileOutputStream(new File(resultfileName));
         wb.write(out);
         out.close();
+    }
+
+    private void calculatePercentages(List<DataEntry> list) {
+        int numbers[] = calculateLocandBug(list);
+        int totalBug = numbers[0];
+        int totalLoc = numbers[1];
+        int locfornow = 0;
+        int bugfornow = 0;
+        for (int i = 0; i < list.size() - 1; i++) {
+            DataEntry e = list.get(i);
+            locfornow += e.getLoc();
+            bugfornow += e.getBug();
+            //percentage of loc
+            double res = (double) (locfornow) / totalLoc;
+            e.setPercentageofLoc(res > 1 ? 1 : res);
+            //percentega of bug
+            double res1 = (double) (bugfornow) / totalBug;
+            e.setPercentageofBug(res1 > 1 ? 1 : res1);
+        }
+    }
+
+    private void calculateAreaBelow(List<DataEntry> list) {
+        for (int i = 0; i < list.size() - 1; i++) {
+            DataEntry entry1 = list.get(i);
+            DataEntry entry2 = list.get(i + 1);
+            double area = ((entry2.getPercentageofLoc() - entry1.getPercentageofLoc()) * (entry1.getPercentageofBug() + entry2.getPercentageofBug())) / 2;
+            entry1.setArea(area);
+        }
     }
 
     private void createRandomOrder(XSSFSheet sheet, ScatterChartData data) {
@@ -102,36 +134,30 @@ public class OutputFileCreator {
 
     private int createOptimal(XSSFSheet sheet, List<DataEntry> list) {
         fillHeadersforExcel(sheet, "Optimal", optimalHeaders);
-        int locfornow = 0;
-        int bugfornow = 0;
-        int numbers[] = calculateLocandBug(list);
-        int totalBug = numbers[0];
-        int totalLoc = numbers[1];
         int rownum = 2;
         for (DataEntry e : list) {
             Row row = sheet.createRow(rownum);
             //loc
             Cell cell = row.createCell(0);
             cell.setCellValue(e.getLoc());
-            locfornow += e.getLoc();
             //bugs
             cell = row.createCell(1);
             cell.setCellValue(e.getBug());
-            bugfornow += e.getBug();
 
             //percentage of loc
             cell = row.createCell(2);
-            double res = ((double) (locfornow)) / totalLoc;
-            cell.setCellValue(res);
+            cell.setCellValue(e.getPercentageofLoc());
 
             //percentage of bug
             cell = row.createCell(3);
-            double res1 = (double) (bugfornow) / totalBug;
-            cell.setCellValue(res1);
+            cell.setCellValue(e.getPercentageofBug());
 
             //density
             cell = row.createCell(4);
             cell.setCellValue(e.getDensity());
+
+            cell = row.createCell(5);
+            cell.setCellValue(e.getArea());
             rownum++;
         }
         return rownum;
@@ -169,11 +195,6 @@ public class OutputFileCreator {
             fillHeadersforExcel(sheet, list.get(0).getPredictions().get(predictionIndex).name, densityHeader);
         else
             fillHeadersforExcel(sheet, list.get(0).getPredictions().get(predictionIndex).name, pronenessHeader);
-        int locfornow = 0;
-        int bugfornow = 0;
-        int numbers[] = calculateLocandBug(list);
-        int totalBug = numbers[0];
-        int totalLoc = numbers[1];
         int rownum = 2;
         for (DataEntry e : list) {
             Row row = sheet.createRow(rownum);
@@ -181,26 +202,21 @@ public class OutputFileCreator {
             int k = 0;
             Cell cell = row.createCell(k++);
             cell.setCellValue(e.getLoc());
-            locfornow += e.getLoc();
             //bugs
             cell = row.createCell(k++);
             cell.setCellValue(e.getBug());
-            bugfornow += e.getBug();
 
             //percentage of loc
             cell = row.createCell(k++);
-            double res = (double) (locfornow) / totalLoc;
-            cell.setCellValue(res > 1 ? 1 : res);
+            cell.setCellValue(e.getPercentageofBug());
             //percentega of bug
             cell = row.createCell(k++);
-            double res1 = (double) (bugfornow) / totalBug;
-            cell.setCellValue(res1 > 1 ? 1 : res1);
+            cell.setCellValue(e.getPercentageofBug());
 
             if (mode == NOBUGS) {
                 cell = row.createCell(k++);
                 cell.setCellValue(e.predictions.get(predictionIndex).prediction);
             }
-
 
             if (mode != BUGPRONENESS) {
                 cell = row.createCell(k++);
@@ -212,6 +228,9 @@ public class OutputFileCreator {
                 cell = row.createCell(k++);
                 cell.setCellValue(e.predictions.get(predictionIndex).prediction);
             }
+
+            cell = row.createCell(k++);
+            cell.setCellValue(e.getArea());
             rownum++;
         }
         return rownum;

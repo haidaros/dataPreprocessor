@@ -82,15 +82,16 @@ public class WekaInterface {
     }
 
     public void fillPredictionData(List<DataEntry> testList, DataExporter.Mode mode) throws Exception {
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
         for (int i = 0; i < testData.numInstances(); i++) {
             Double pred = classifier.classifyInstance(testData.instance(i));
             double[] probabilityandDistribution = classifier.distributionForInstance(testData.instance(i));
             Prediction prediction = new Prediction();
             prediction.setName(this.mode.toString());
             prediction.setPrediction(pred);
-            prediction.setProbability(probabilityandDistribution[0]);
-            prediction.setDistribution(probabilityandDistribution[1]);
+            if (mode == DataExporter.Mode.BUGPRONENESS) {
+                prediction.setProbability(probabilityandDistribution[0]);
+                prediction.setDistribution(probabilityandDistribution[1]);
+            }
             if (mode == DataExporter.Mode.NOBUGS) {
                 int loc = testList.get(i).getLoc();
                 prediction.setPredictionDensinty(loc == 0 ? 0 : (1000 * (pred / loc)));
