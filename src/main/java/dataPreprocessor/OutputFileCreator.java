@@ -212,7 +212,6 @@ public class OutputFileCreator {
                     break;
                 }
             }
-            System.out.println("prediction = " + prediction);
             DataEntry e1 = list.get(prediction);
             DataEntry e2 = list.get(prediction - 1);
             double x1 = e1.getPercentageofLoc();
@@ -341,7 +340,6 @@ public class OutputFileCreator {
                     }
                 }
             }
-            System.out.println("prediction = " + prediction);
             DataEntry e1 = list.get(prediction);
             DataEntry e2 = list.get(prediction - 1);
             double x1 = e1.getPercentageofLoc();
@@ -381,10 +379,6 @@ public class OutputFileCreator {
             sheet.getRow(lastRow).createCell(cn).setCellValue("Final AUC at alpha=" + alpha);
             sheet.getRow(lastRow + 1).createCell(cn).setCellValue(finalUacforAlpha);
             double alphaarea = alpha * alpha / 2;
-            System.out.println("alpha = " + alpha);
-            System.out.println("alphaarea = " + alphaarea);
-            System.out.println("finalUacforAlpha = " + finalUacforAlpha);
-            System.out.println("uacForAlphas = " + uacForAlphas[l]);
             double CEforalpha = (finalUacforAlpha - alphaarea) / (uacForAlphas[l] - alphaarea);
             ceSheet.getRow(predictionIndex + 1).createCell(l + 1).setCellValue(CEforalpha);
             sheet.getRow(lastRow + 2).createCell(cn).setCellValue("Ce for alpha=" + alpha);
