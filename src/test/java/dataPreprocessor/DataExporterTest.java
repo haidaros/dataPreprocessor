@@ -13,6 +13,8 @@ public class DataExporterTest {
     //SMoreg, Linear Regression , IBK
     //Todo
     //check the excel chart
+    double[] ceList = {0.2, 1};
+
     @Test
     public void testModeNoBugs() throws Exception {
         File f = ResourceUtils.getFile("datasets/mylyn/single-version-ck-oo.csv");
@@ -32,7 +34,7 @@ public class DataExporterTest {
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
         OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.modeofDataExporter);
-        outputFileCreator.createNumericalSheet(dataExporter.testList, "resultNoBugs.xls");
+        outputFileCreator.createNumericalSheet(dataExporter.testList, "resultNoBugs.xls", ceList);
     }
 
     //Test Mode: Bug Density
@@ -56,7 +58,7 @@ public class DataExporterTest {
         wk.train();
         wk.fillDensityPrediction(dataExporter.testList);
         OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.getModeofDataExporter());
-        outputFileCreator.createNumericalSheet(dataExporter.testList, "resultDensity.xls");
+        outputFileCreator.createNumericalSheet(dataExporter.testList, "resultDensity.xls", ceList);
     }
 
     //Test Mode: Class
@@ -83,7 +85,7 @@ public class DataExporterTest {
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
         OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.modeofDataExporter);
-        outputFileCreator.createResult(dataExporter.testList, "resultClass.xls");
+        outputFileCreator.createResult(dataExporter.testList, "resultClass.xls", ceList);
     }
 
     //Test Mode: Bug Proneness
@@ -109,6 +111,6 @@ public class DataExporterTest {
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
         OutputFileCreator outputFileCreator = new OutputFileCreator(DataExporter.Mode.BUGPRONENESS);
-        outputFileCreator.createResult(dataExporter.testList, "resultProne.xls");
+        outputFileCreator.createResult(dataExporter.testList, "resultProne.xls", ceList);
     }
 }

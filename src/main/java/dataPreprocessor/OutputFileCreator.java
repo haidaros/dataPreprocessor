@@ -28,16 +28,19 @@ public class OutputFileCreator {
     private String[] classHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Prediction", "Area"};
     private String[] pronenessHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Probability", "Area"};
 
+    double[] uacForAlphas;
+
     public OutputFileCreator(DataExporter.Mode modeofDataExporter) {
         this.mode = modeofDataExporter;
     }
 
-    public void createNumericalSheet(List<DataEntry> list, String resultfileName) throws Exception {
+    public void createNumericalSheet(List<DataEntry> list, String resultfileName, double[] ceList) throws Exception {
         this.resultfileName = resultfileName;
-        createNumericalSheet(list);
+        createNumericalSheet(list, ceList);
     }
 
-    public void createNumericalSheet(List<DataEntry> list) throws Exception {
+    public void createNumericalSheet(List<DataEntry> list, double[] ceList) throws Exception {
+        uacForAlphas = new double[ceList.length];
         FileInputStream fis = new FileInputStream(ResourceUtils.getPath("templateExcel.xls"));
         XSSFWorkbook wb = new XSSFWorkbook();
         List<Prediction> predictions = list.get(0).getPredictions();
@@ -61,7 +64,7 @@ public class OutputFileCreator {
         Collections.sort(list, new DensityComparer());
         calculatePercentages(list);
         calculateAreaBelow(list);
-        int rowNum = createOptimal(sheet, list);
+        int rowNum = createOptimal(sheet, list, ceList);
         fillFormulate(sheet, "Optimal", rowNum, data);
         createRandomOrder(sheet, data);
         for (int i = 0; i < predictionscount; i++) {
@@ -78,7 +81,7 @@ public class OutputFileCreator {
             calculatePercentages(list);
             calculateAreaBelow(list);
             sheet = wb.createSheet(sheetName);
-            rowNum = fillExcel(sheet, list, i);
+            rowNum = fillExcel(sheet, list, i, ceList);
             fillFormulate(sheet, sheetName, rowNum, data);
         }
         //PlotChart
@@ -94,7 +97,7 @@ public class OutputFileCreator {
         int totalLoc = numbers[1];
         int locfornow = 0;
         int bugfornow = 0;
-        for (int i = 0; i < list.size() - 1; i++) {
+        for (int i = 0; i < list.size(); i++) {
             DataEntry e = list.get(i);
             locfornow += e.getLoc();
             bugfornow += e.getBug();
@@ -103,6 +106,7 @@ public class OutputFileCreator {
             e.setPercentageofLoc(res > 1 ? 1 : res);
             //percentega of bug
             double res1 = (double) (bugfornow) / totalBug;
+            System.out.println("res1 = " + res1);
             e.setPercentageofBug(res1 > 1 ? 1 : res1);
         }
     }
@@ -132,7 +136,7 @@ public class OutputFileCreator {
         lineChartSeries.setTitle("Random Order");
     }
 
-    private int createOptimal(XSSFSheet sheet, List<DataEntry> list) {
+    private int createOptimal(XSSFSheet sheet, List<DataEntry> list, double[] ceList) {
         fillHeadersforExcel(sheet, "Optimal", optimalHeaders);
         int rownum = 2;
         for (DataEntry e : list) {
@@ -160,6 +164,59 @@ public class OutputFileCreator {
             cell.setCellValue(e.getArea());
             rownum++;
         }
+        //columnnumber
+        int cn = 8;
+        int lastRow = 21;
+        for (int l = 0; l < ceList.length; l++) {
+            double alpha = ceList[l];
+            int prediction = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).getPercentageofLoc() >= alpha) {
+                    prediction = i;
+                    break;
+                }
+            }
+            System.out.println("prediction = " + prediction);
+            DataEntry e1 = list.get(prediction);
+            DataEntry e2 = list.get(prediction - 1);
+            double x1 = e1.getPercentageofLoc();
+            double x2 = e2.getPercentageofLoc();
+            double y1 = e1.getPercentageofBug();
+            double y2 = e2.getPercentageofBug();
+            double estimatedPBug = y1 + ((alpha - x1) * (y2 - y1) / (x2 - x1));
+            double aucBx1andx2 = ((x1 - x2) * (y1 + y2)) / 2;
+            double aucx1andAlpha = (alpha - x1) * (y1 + estimatedPBug) / 2;
+            double aucb0andfirst = list.get(0).getPercentageofLoc() * list.get(0).getPercentageofBug() / 2;
+            sheet.getRow(5).createCell(cn).setCellValue("X1");
+            sheet.getRow(6).createCell(cn).setCellValue(x1);
+            sheet.getRow(7).createCell(cn).setCellValue("X2");
+            sheet.getRow(8).createCell(cn).setCellValue(x2);
+            sheet.getRow(9).createCell(cn).setCellValue("Y1");
+            sheet.getRow(10).createCell(cn).setCellValue(y1);
+            sheet.getRow(11).createCell(cn).setCellValue("Y2");
+            sheet.getRow(12).createCell(cn).setCellValue(y2);
+            sheet.getRow(13).createCell(cn).setCellValue("Estimated Percentage of bugs (y)");
+            sheet.getRow(14).createCell(cn).setCellValue(estimatedPBug);
+            sheet.getRow(15).createCell(cn).setCellValue("AUC between x1 and x2");
+            sheet.getRow(16).createCell(cn).setCellValue(aucBx1andx2);
+            sheet.getRow(17).createCell(cn).setCellValue("AUC between x1 and alpha");
+            sheet.getRow(18).createCell(cn).setCellValue(aucx1andAlpha);
+            sheet.getRow(19).createCell(cn).setCellValue("AUC between x1 and firstPoint");
+            sheet.getRow(20).createCell(cn).setCellValue(estimatedPBug);
+            double totalarea = 0;
+            for (int k = 0; k <= prediction; k++) {
+                totalarea += list.get(k).getArea();
+            }
+            double finalUacforAlpha;
+            if (alpha == 1)
+                finalUacforAlpha = totalarea + aucb0andfirst;
+            else
+                finalUacforAlpha = totalarea - aucBx1andx2 + aucx1andAlpha + aucb0andfirst;
+            sheet.getRow(lastRow).createCell(cn).setCellValue("Final AUC at alpha=" + alpha);
+            sheet.getRow(lastRow + 1).createCell(cn).setCellValue(finalUacforAlpha);
+            uacForAlphas[l] = finalUacforAlpha;
+            cn++;
+        }
         return rownum;
     }
 
@@ -186,7 +243,7 @@ public class OutputFileCreator {
         }
     }
 
-    private int fillExcel(XSSFSheet sheet, List<DataEntry> list, int predictionIndex) {
+    private int fillExcel(XSSFSheet sheet, List<DataEntry> list, int predictionIndex, double[] ceList) {
         if (mode == NOBUGS)
             fillHeadersforExcel(sheet, list.get(0).getPredictions().get(predictionIndex).name);
         else if (mode == CLASS)
@@ -233,6 +290,67 @@ public class OutputFileCreator {
             cell.setCellValue(e.getArea());
             rownum++;
         }
+        int cn = 8;
+        int lastRow = 21;
+        for (int l = 0; l < ceList.length; l++) {
+            double alpha = ceList[l];
+            int prediction = 0;
+            if (alpha == 1)
+                prediction = list.size() - 1;
+            else {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).getPercentageofLoc() >= alpha) {
+                        prediction = i;
+                        break;
+                    }
+                }
+            }
+            System.out.println("prediction = " + prediction);
+            DataEntry e1 = list.get(prediction);
+            DataEntry e2 = list.get(prediction - 1);
+            double x1 = e1.getPercentageofLoc();
+            double x2 = e2.getPercentageofLoc();
+            double y1 = e1.getPercentageofBug();
+            double y2 = e2.getPercentageofBug();
+            double estimatedPBug = y1 + ((alpha - x1) * (y2 - y1) / (x2 - x1));
+            double aucBx1andx2 = ((x1 - x2) * (y1 + y2)) / 2;
+            double aucx1andAlpha = (alpha - x1) * (y1 + estimatedPBug) / 2;
+            double aucb0andfirst = list.get(0).getPercentageofLoc() * list.get(0).getPercentageofBug() / 2;
+            sheet.getRow(5).createCell(cn).setCellValue("X1");
+            sheet.getRow(6).createCell(cn).setCellValue(x1);
+            sheet.getRow(7).createCell(cn).setCellValue("X2");
+            sheet.getRow(8).createCell(cn).setCellValue(x2);
+            sheet.getRow(9).createCell(cn).setCellValue("Y1");
+            sheet.getRow(10).createCell(cn).setCellValue(y1);
+            sheet.getRow(11).createCell(cn).setCellValue("Y2");
+            sheet.getRow(12).createCell(cn).setCellValue(y2);
+            sheet.getRow(13).createCell(cn).setCellValue("Estimated Percentage of bugs (y)");
+            sheet.getRow(14).createCell(cn).setCellValue(estimatedPBug);
+            sheet.getRow(15).createCell(cn).setCellValue("AUC between x1 and x2");
+            sheet.getRow(16).createCell(cn).setCellValue(aucBx1andx2);
+            sheet.getRow(17).createCell(cn).setCellValue("AUC between x1 and alpha");
+            sheet.getRow(18).createCell(cn).setCellValue(aucx1andAlpha);
+            sheet.getRow(19).createCell(cn).setCellValue("AUC between 0 and firstPoint");
+            sheet.getRow(20).createCell(cn).setCellValue(aucb0andfirst);
+            double totalarea = 0;
+            for (int k = 0; k <= prediction; k++) {
+                totalarea += list.get(k).getArea();
+            }
+            double finalUacforAlpha;
+            if (alpha == 1)
+                finalUacforAlpha = totalarea + aucb0andfirst;
+            else
+                finalUacforAlpha = totalarea - aucBx1andx2 + aucx1andAlpha + aucb0andfirst;
+            sheet.getRow(lastRow).createCell(cn).setCellValue("Final AUC at alpha=" + alpha);
+            sheet.getRow(lastRow + 1).createCell(cn).setCellValue(finalUacforAlpha);
+            double alphaarea = alpha * alpha / 2;
+            double CEforalpha = (finalUacforAlpha - alphaarea) / (uacForAlphas[l] - alphaarea);
+            sheet.getRow(lastRow + 2).createCell(cn).setCellValue("Ce for alpha=" + alpha);
+            sheet.getRow(lastRow + 3).createCell(cn).setCellValue(CEforalpha);
+
+            cn++;
+        }
+
         return rownum;
     }
 
@@ -248,7 +366,7 @@ public class OutputFileCreator {
         return new int[]{totalbug, totalloc, rownum};
     }
 
-    public void createResult(List<DataEntry> testList, String s) throws Exception {
-        createNumericalSheet(testList, s);
+    public void createResult(List<DataEntry> testList, String s, double[] ceList) throws Exception {
+        createNumericalSheet(testList, s, ceList);
     }
 }
