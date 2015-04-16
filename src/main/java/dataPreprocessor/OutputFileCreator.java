@@ -30,6 +30,8 @@ public class OutputFileCreator {
 
     double[] uacForAlphas;
 
+    Sheet ceSheet;
+
     public OutputFileCreator(DataExporter.Mode modeofDataExporter) {
         this.mode = modeofDataExporter;
     }
@@ -49,7 +51,7 @@ public class OutputFileCreator {
             predictionscount = predictions.size();
         else
             throw new Exception("There is no predictions");
-        //Chart
+        //Chart 1
         Drawing drawing = wb.createSheet("Chart").createDrawingPatriarch();
         ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 1, 1, 17, 35);
         Chart chart = drawing.createChart(anchor);
@@ -57,8 +59,20 @@ public class OutputFileCreator {
         legend.setPosition(LegendPosition.TOP);
         ScatterChartData data = chart.getChartDataFactory().createScatterChartData();
         ChartAxis bottomAxis = chart.getChartAxisFactory().createCategoryAxis(AxisPosition.BOTTOM);
-        bottomAxis.setNumberFormat("Percentage");
+        bottomAxis.setNumberFormat("Percentage"); //todo  not working right now
         ValueAxis leftAxis = chart.getChartAxisFactory().createValueAxis(AxisPosition.LEFT);
+        //Chart 2
+        Sheet ceChartSheet = wb.createSheet("CEChart");
+        ceSheet = ceChartSheet;
+//        Drawing drawing2 = ceChartSheet.createDrawingPatriarch();
+//        ClientAnchor anchor2 = drawing.createAnchor(0, 0, 0, 0, 1, 1, 17, 35);
+//        Chart chart2 = drawing.createChart(anchor);
+//        ChartLegend legend2 = chart.getOrCreateLegend();
+//        legend2.setPosition(LegendPosition.TOP);
+//        ChartAxis bottomAxis2 = chart.getChartAxisFactory().createCategoryAxis(AxisPosition.BOTTOM);
+//        ValueAxis leftAxis2 = chart.getChartAxisFactory().createValueAxis(AxisPosition.LEFT);
+//        ScatterChartData data2 = chart.getChartDataFactory().createScatterChartData();
+        createHeaderforCeChart(list.get(0), ceChartSheet, ceList);
         //Data
         XSSFSheet sheet = wb.createSheet("Optimal");
         Collections.sort(list, new DensityComparer());
@@ -85,10 +99,33 @@ public class OutputFileCreator {
             fillFormulate(sheet, sheetName, rowNum, data);
         }
         //PlotChart
+//        createCeChart(data2, list.get(0));
+//        chart2.plot(data2, bottomAxis2, leftAxis2);
         chart.plot(data, bottomAxis, leftAxis);
         FileOutputStream out = new FileOutputStream(new File(resultfileName));
         wb.write(out);
         out.close();
+    }
+
+//    private void createCeChart(ScatterChartData data2, DataEntry dataEntry) {
+//        int size = dataEntry.getPredictions().size();
+//        for (Prediction p : dataEntry.getPredictions()) {
+//            ChartDataSource<Number> ys = DataSources.fromNumericCellRange(ceSheet, new CellRangeAddress(1, size, 1, 2));//todo celist size
+//            ScatterChartSeries scatterChartSeries = data2.addSerie(null, ys);
+//            scatterChartSeries.setTitle(p.getName());
+//        }
+//    }
+
+    private void createHeaderforCeChart(DataEntry dataEntry, Sheet ceChartSheet, double[] ceList) {
+        Row row = ceChartSheet.createRow(0);
+        int cno = 1;
+        int rno = 1;
+        for (double ce : ceList) {
+            row.createCell(cno++).setCellValue("Alpha = " + ce);
+        }
+        for (Prediction p : dataEntry.getPredictions()) {
+            ceChartSheet.createRow(rno++).createCell(0).setCellValue(p.getName());
+        }
     }
 
     private void calculatePercentages(List<DataEntry> list) {
@@ -106,7 +143,6 @@ public class OutputFileCreator {
             e.setPercentageofLoc(res > 1 ? 1 : res);
             //percentega of bug
             double res1 = (double) (bugfornow) / totalBug;
-            System.out.println("res1 = " + res1);
             e.setPercentageofBug(res1 > 1 ? 1 : res1);
         }
     }
@@ -202,7 +238,7 @@ public class OutputFileCreator {
             sheet.getRow(17).createCell(cn).setCellValue("AUC between x1 and alpha");
             sheet.getRow(18).createCell(cn).setCellValue(aucx1andAlpha);
             sheet.getRow(19).createCell(cn).setCellValue("AUC between x1 and firstPoint");
-            sheet.getRow(20).createCell(cn).setCellValue(estimatedPBug);
+            sheet.getRow(20).createCell(cn).setCellValue(aucb0andfirst);
             double totalarea = 0;
             for (int k = 0; k <= prediction; k++) {
                 totalarea += list.get(k).getArea();
@@ -265,7 +301,7 @@ public class OutputFileCreator {
 
             //percentage of loc
             cell = row.createCell(k++);
-            cell.setCellValue(e.getPercentageofBug());
+            cell.setCellValue(e.getPercentageofLoc());
             //percentega of bug
             cell = row.createCell(k++);
             cell.setCellValue(e.getPercentageofBug());
@@ -341,13 +377,18 @@ public class OutputFileCreator {
                 finalUacforAlpha = totalarea + aucb0andfirst;
             else
                 finalUacforAlpha = totalarea - aucBx1andx2 + aucx1andAlpha + aucb0andfirst;
+
             sheet.getRow(lastRow).createCell(cn).setCellValue("Final AUC at alpha=" + alpha);
             sheet.getRow(lastRow + 1).createCell(cn).setCellValue(finalUacforAlpha);
             double alphaarea = alpha * alpha / 2;
+            System.out.println("alpha = " + alpha);
+            System.out.println("alphaarea = " + alphaarea);
+            System.out.println("finalUacforAlpha = " + finalUacforAlpha);
+            System.out.println("uacForAlphas = " + uacForAlphas[l]);
             double CEforalpha = (finalUacforAlpha - alphaarea) / (uacForAlphas[l] - alphaarea);
+            ceSheet.getRow(predictionIndex + 1).createCell(l + 1).setCellValue(CEforalpha);
             sheet.getRow(lastRow + 2).createCell(cn).setCellValue("Ce for alpha=" + alpha);
             sheet.getRow(lastRow + 3).createCell(cn).setCellValue(CEforalpha);
-
             cn++;
         }
 
