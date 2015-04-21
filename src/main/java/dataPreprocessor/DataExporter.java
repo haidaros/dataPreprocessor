@@ -141,12 +141,13 @@ public class DataExporter {
                 } else if (c.getKey().equals(classnameHeader)) {
                     cl.setClassName(entry[c.getValue()]);
                 } else if (c.getKey().equals(bugTableHeader)) {
-                    cl.setBug(Integer.valueOf(entry[c.getValue()]));
+                    cl.setBug(Integer.valueOf(entry[c.getValue()].trim()));
                 } else {
                     cl.addOther(c.getKey(), Double.valueOf(entry[c.getValue()]));
                 }
             }
-            classList.add(cl);
+            if (cl.getLoc() != 0)
+                classList.add(cl);
         }
     }
 

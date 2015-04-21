@@ -94,7 +94,7 @@ public class DataExporterTest {
     //what we should give weka
     @Test
     public void testBugProneness() throws Exception {
-        File f = ResourceUtils.getFile("datasets/mylyn/single-version-ck-oo.csv");
+        File f = ResourceUtils.getFile("datasets/lucene/single-version-ck-oo.csv");
         String exclusion = "nonTrivialBugs,majorBugs,criticalBugs,highPriorityBugs";
         DataExporter dataExporter = new DataExporter("bugs", f);
         dataExporter.setModeofDataExporter(DataExporter.Mode.CLASS);
@@ -103,13 +103,13 @@ public class DataExporterTest {
         dataExporter.getTrainingCSV("training.csv");
         WekaInterface wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.J48);
         wk.train();
-        wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
+        wk.fillPredictionData(dataExporter.testList, DataExporter.Mode.BUGPRONENESS);
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.RandomForest);
         wk.train();
-        wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
+        wk.fillPredictionData(dataExporter.testList, DataExporter.Mode.BUGPRONENESS);
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBK);
         wk.train();
-        wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
+        wk.fillPredictionData(dataExporter.testList,DataExporter.Mode.BUGPRONENESS);
         OutputFileCreator outputFileCreator = new OutputFileCreator(DataExporter.Mode.BUGPRONENESS);
         outputFileCreator.createResult(dataExporter.testList, "resultProne.xls", ceList);
     }

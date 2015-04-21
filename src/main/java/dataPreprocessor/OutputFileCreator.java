@@ -26,7 +26,7 @@ public class OutputFileCreator {
     private String[] optimalHeaders = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Density", "Area"};
     private String[] densityHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Predicted Density", "Area"};
     private String[] classHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Prediction", "Area"};
-    private String[] pronenessHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Probability", "Area"};
+    private String[] pronenessHeader = {"NumberOfLinesOfCode", "Actualno.ofbugs", "PercentageofLocs", "PercentageofBugs", "Prediction", "Probability", "Area"};
 
     double[] uacForAlphas;
 
@@ -64,14 +64,6 @@ public class OutputFileCreator {
         //Chart 2
         Sheet ceChartSheet = wb.createSheet("CEChart");
         ceSheet = ceChartSheet;
-//        Drawing drawing2 = ceChartSheet.createDrawingPatriarch();
-//        ClientAnchor anchor2 = drawing.createAnchor(0, 0, 0, 0, 1, 1, 17, 35);
-//        Chart chart2 = drawing.createChart(anchor);
-//        ChartLegend legend2 = chart.getOrCreateLegend();
-//        legend2.setPosition(LegendPosition.TOP);
-//        ChartAxis bottomAxis2 = chart.getChartAxisFactory().createCategoryAxis(AxisPosition.BOTTOM);
-//        ValueAxis leftAxis2 = chart.getChartAxisFactory().createValueAxis(AxisPosition.LEFT);
-//        ScatterChartData data2 = chart.getChartDataFactory().createScatterChartData();
         createHeaderforCeChart(list.get(0), ceChartSheet, ceList);
         //Data
         XSSFSheet sheet = wb.createSheet("Optimal");
@@ -98,23 +90,12 @@ public class OutputFileCreator {
             rowNum = fillExcel(sheet, list, i, ceList);
             fillFormulate(sheet, sheetName, rowNum, data);
         }
-        //PlotChart
-//        createCeChart(data2, list.get(0));
-//        chart2.plot(data2, bottomAxis2, leftAxis2);
+
         chart.plot(data, bottomAxis, leftAxis);
         FileOutputStream out = new FileOutputStream(new File(resultfileName));
         wb.write(out);
         out.close();
     }
-
-//    private void createCeChart(ScatterChartData data2, DataEntry dataEntry) {
-//        int size = dataEntry.getPredictions().size();
-//        for (Prediction p : dataEntry.getPredictions()) {
-//            ChartDataSource<Number> ys = DataSources.fromNumericCellRange(ceSheet, new CellRangeAddress(1, size, 1, 2));//todo celist size
-//            ScatterChartSeries scatterChartSeries = data2.addSerie(null, ys);
-//            scatterChartSeries.setTitle(p.getName());
-//        }
-//    }
 
     private void createHeaderforCeChart(DataEntry dataEntry, Sheet ceChartSheet, double[] ceList) {
         Row row = ceChartSheet.createRow(0);
@@ -304,21 +285,19 @@ public class OutputFileCreator {
             //percentega of bug
             cell = row.createCell(k++);
             cell.setCellValue(e.getPercentageofBug());
-
             if (mode == NOBUGS) {
                 cell = row.createCell(k++);
                 cell.setCellValue(e.predictions.get(predictionIndex).prediction);
             }
-
             if (mode != BUGPRONENESS) {
                 cell = row.createCell(k++);
                 cell.setCellValue(e.predictions.get(predictionIndex).predictionDensinty);
             } else {
                 cell = row.createCell(k++);
-                cell.setCellValue(e.predictions.get(predictionIndex).probability);
+                cell.setCellValue(e.predictions.get(predictionIndex).prediction);
 
                 cell = row.createCell(k++);
-                cell.setCellValue(e.predictions.get(predictionIndex).prediction);
+                cell.setCellValue(e.predictions.get(predictionIndex).probability);
             }
 
             cell = row.createCell(k++);

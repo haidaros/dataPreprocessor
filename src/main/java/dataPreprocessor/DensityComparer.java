@@ -94,7 +94,7 @@ class dynamicProbabilityComparer implements Comparator<DataEntry> {
             if (p1.probability > p2.probability) {
                 return -1;
             } else if (p1.probability == p2.probability) {
-                if (o1.loc >= o2.loc)
+                if (o1.loc <= o2.loc)
                     return -1;
                 else
                     return 1;

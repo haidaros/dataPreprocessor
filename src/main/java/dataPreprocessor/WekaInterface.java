@@ -89,8 +89,7 @@ public class WekaInterface {
             prediction.setName(this.mode.toString());
             prediction.setPrediction(pred);
             if (mode == DataExporter.Mode.BUGPRONENESS) {
-                prediction.setProbability(probabilityandDistribution[0]);
-                prediction.setDistribution(probabilityandDistribution[1]);
+                prediction.setProbability(probabilityandDistribution[pred.intValue()]);
             }
             if (mode == DataExporter.Mode.NOBUGS) {
                 int loc = testList.get(i).getLoc();
