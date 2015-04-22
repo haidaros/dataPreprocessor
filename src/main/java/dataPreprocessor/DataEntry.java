@@ -8,8 +8,9 @@ import java.util.Map;
 /**
  * Created by eg on 11/03/15.
  */
+//TODO this is a strange class. I don't know what it represents.
 public class DataEntry {
-
+	//TODO add the visibility to the members.
     static String bugDensityHeader = "BugDensity";
     static String buggyHeader = "Buggy";
     static String locHeader = "numberOfLinesOfCode";
@@ -18,6 +19,8 @@ public class DataEntry {
     String className;
     int bug;
     double density;
+    //TODO the models are hard-coded. They should be pluggable somehow.
+    
     //LinearRegressionTest
     double prediction;
     double predictionDensinty;

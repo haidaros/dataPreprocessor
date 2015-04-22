@@ -5,7 +5,7 @@ package dataPreprocessor;
  */
 public class Prediction {
     String name;
-    double prediction;
+    double prediction;//TODO what prediction??
     double predictionDensinty;
     double probability;
     double distribution;
