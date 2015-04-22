@@ -30,7 +30,7 @@ public class DataExporterTest {
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.LinearRegression);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
-        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBK);
+        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBk);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
         OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.modeofDataExporter);
@@ -54,7 +54,7 @@ public class DataExporterTest {
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.LinearRegression);
         wk.train();
         wk.fillDensityPrediction(dataExporter.testList);
-        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBK);
+        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBk);
         wk.train();
         wk.fillDensityPrediction(dataExporter.testList);
         OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.getModeofDataExporter());
@@ -78,10 +78,10 @@ public class DataExporterTest {
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.SMO);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
-        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBK);
+        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBk);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
-        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.MultiplayerPerception);
+        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.MultilayerPerceptron);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, dataExporter.modeofDataExporter);
         OutputFileCreator outputFileCreator = new OutputFileCreator(dataExporter.modeofDataExporter);
@@ -107,7 +107,7 @@ public class DataExporterTest {
         wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.RandomForest);
         wk.train();
         wk.fillPredictionData(dataExporter.testList, DataExporter.Mode.BUGPRONENESS);
-        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBK);
+        wk = new WekaInterface("test.csv", "training.csv", WekaInterface.wekaMode.IBk);
         wk.train();
         wk.fillPredictionData(dataExporter.testList,DataExporter.Mode.BUGPRONENESS);
         OutputFileCreator outputFileCreator = new OutputFileCreator(DataExporter.Mode.BUGPRONENESS);

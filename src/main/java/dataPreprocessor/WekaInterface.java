@@ -28,10 +28,10 @@ public class WekaInterface {
     enum wekaMode {
         SMOreg,
         LinearRegression,
-        IBK,
+        IBk,
         SMO,
         RandomForest,
-        MultiplayerPerception,
+        MultilayerPerceptron,
         J48
     }
 
@@ -46,34 +46,38 @@ public class WekaInterface {
         //**
         trainingData.setClassIndex(trainingData.numAttributes() - 1);
         testData.setClassIndex(testData.numAttributes() - 1);
-
+        
+        System.out.println("just before reflection");
         this.mode = mode;
+        Class clazz=Class.forName("weka.classifiers.functions."+mode.toString());
+        classifier= (Classifier) clazz.newInstance();
+        System.out.println("Reflection is a success");
         //**
-        switch (mode) {
-            case SMOreg:
-                classifier = new SMOreg();
-                break;
-            case LinearRegression:
-                classifier = new LinearRegression();
-                break;
-            case IBK:
-                classifier = new IBk();
-                break;
-            case SMO:
-                classifier = new SMO();
-                break;
-            case RandomForest:
-                classifier = new RandomForest();
-                break;
-            case MultiplayerPerception:
-                classifier = new MultilayerPerceptron();
-                break;
-            case J48:
-                classifier = new J48();
-                break;
-            default:
-                throw new Exception("You have to choose a weka mode");
-        }
+//        switch (mode) {
+//            case SMOreg:
+//                classifier = new SMOreg();
+//                break;
+//            case LinearRegression:
+//                classifier = new LinearRegression();
+//                break;
+//            case IBK:
+//                classifier = new IBk();
+//                break;
+//            case SMO:
+//                classifier = new SMO();
+//                break;
+//            case RandomForest:
+//                classifier = new RandomForest();
+//                break;
+//            case MultilayerPerceptron:
+//                classifier = new MultilayerPerceptron();
+//                break;
+//            case J48:
+//                classifier = new J48();
+//                break;
+//            default:
+//                throw new Exception("You have to choose a weka mode");
+//        }
 
     }
 

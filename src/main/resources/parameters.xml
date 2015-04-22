@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool-parameters>
+	<input-path>
+		/path/to/input/directory
+	</input-path>
+
+	<cleanup>
+		<rows-to-remove>
+			<item>
+				<header></header>
+				<value></value>
+			</item>
+			<item>
+				<header></header>
+				<value></value>
+			</item>
+			<item>
+				<header></header>
+				<value></value>
+			</item>
+		</rows-to-remove>
+
+		<columns-to-remove>
+			<item></item>
+			<item></item>
+			<item></item>
+		</columns-to-remove>
+
+		<target-columns>
+			<item></item>
+			<item></item>
+			<item></item>
+		</target-columns>
+	</cleanup>
+
+	<splitting>
+		<test-ratio>
+		</test-ratio>
+	</splitting>
+
+	<predictions>
+		<mode name="buggy-class">
+			<model>RandomForest</model>
+			<model>IBk</model>
+			<model>SMO</model>
+			<model>MultilayerPerceptron</model>
+		</mode>
+		<mode name="bug-density">
+			<model>LinearRegression</model>
+			<model>IBk</model>
+			<model>SMOreg</model>
+			<model>MultilayerPerceptron</model>
+		</mode>
+		<mode name="bug-count">
+			<model>LinearRegression</model>
+			<model>IBk</model>
+			<model>SMOreg</model>
+			<model>MultilayerPerceptron</model>
+		</mode>
+
+		<mode name="bug-proneness">
+			<model>RandomForest</model>
+			<model>IBk</model>
+			<model>J48</model>
+		</mode>
+
+	</predictions>
+</tool-parameters>
+
+
