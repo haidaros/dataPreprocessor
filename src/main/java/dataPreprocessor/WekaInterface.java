@@ -25,7 +25,7 @@ public class WekaInterface {
     wekaMode mode;
 
 
-    enum wekaMode {
+    public enum wekaMode {
         SMOreg,
         LinearRegression,
         IBk,

@@ -143,7 +143,7 @@ public class DataExporter {
                 } else if (c.getKey().equals(bugTableHeader)) {
                     cl.setBug(Integer.valueOf(entry[c.getValue()].trim()));
                 } else {
-                    cl.addOther(c.getKey(), Double.valueOf(entry[c.getValue()]));
+                    cl.addOther(c.getKey(), Double.valueOf(entry[c.getValue()].trim()));
                 }
             }
             if (cl.getLoc() != 0)
