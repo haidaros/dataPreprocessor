@@ -7,7 +7,6 @@ import util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,66 +29,23 @@ public class SplittingWriter implements ItemWriter<SplittingData> {
             csvWriter.writeAll(s.getTestList());
             csvWriter.close();
             //Mode 2 Buggy
-            fileNameTraining = projectFolderName + "/" + realName + "-trainig-Class.csv";
-            fileNameTest = projectFolderName + "/" + realName + "-test-Class.csv";
+            fileNameTraining = projectFolderName + "/" + realName + "-trainig-Buggy.csv";
+            fileNameTest = projectFolderName + "/" + realName + "-test-Buggy.csv";
             csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
-            csvWriter.writeAll(makeitBuggy(s.getTrainingList()));
+            csvWriter.writeAll(s.getTrainingListBuggy());
             csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
-            csvWriter.writeAll(makeitBuggy(s.getTestList()));
+            csvWriter.writeAll(s.getTestListBuggy());
             csvWriter.close();
-            //Mode 2 Buggy
+            //Mode 3 Density
             fileNameTraining = projectFolderName + "/" + realName + "-trainig-Density.csv";
             fileNameTest = projectFolderName + "/" + realName + "-test-Density.csv";
             csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
-            csvWriter.writeAll(makeitDensity(s.getTrainingList()));
+            csvWriter.writeAll(s.getTrainingListDensity());
             csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
-            csvWriter.writeAll(makeitDensity(s.getTestList()));
+            csvWriter.writeAll(s.getTestListDensity());
             csvWriter.close();
         }
     }
 
-    private List<String[]> makeitBuggy(List<String[]> list) {
-        int bugindex = list.get(0).length - 1;
-        List<String[]> newlist = new LinkedList<String[]>();
-        list.get(0)[bugindex] = "Class";
-        newlist.add(list.get(0));
-        for (int i = 1; i < list.size(); i++) {
-            String[] row = list.get(i);
-            String[] newrow = new String[row.length];
-            System.arraycopy(row, 0, newrow, 0, row.length);
-            newrow[bugindex] = Integer.parseInt(row[bugindex]) > 0 ? "Yes" : "No";
-            newlist.add(newrow);
-        }
-        return newlist;
-    }
 
-    private List<String[]> makeitDensity(List<String[]> list) throws Exception {
-        int bugindex = list.get(0).length - 1;
-        int locindex = findLocIndex(list.get(0));
-        list.get(0)[bugindex] = "Density";
-        List<String[]> newlist = new LinkedList<String[]>();
-        newlist.add(list.get(0));
-        for (int i = 1; i < list.size(); i++) {
-            String[] row = list.get(i);
-            String[] newrow = new String[row.length];
-            System.arraycopy(row, 0, newrow, 0, row.length);
-            Double density = (Double.parseDouble(row[bugindex]) / Double.parseDouble(row[locindex]) * 1000);
-            newrow[bugindex] = String.valueOf(density.intValue());
-            newlist.add(newrow);
-        }
-        return newlist;
-    }
-
-    private int findLocIndex(String[] strings) throws Exception {
-        int i = 0;
-        List<Object> list = ResourceUtils.getConfig().getList("cleanup.loc-header-names.header");
-        for (String s : strings) {
-            for (Object o : list) {
-                if (s.equals(o.toString()))
-                    return i;
-            }
-            i++;
-        }
-        throw new Exception("loc not found check the code");
-    }
 }

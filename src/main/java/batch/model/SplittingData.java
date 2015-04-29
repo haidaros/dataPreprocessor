@@ -10,6 +10,10 @@ public class SplittingData {
     File file;
     List<String[]> testList;
     List<String[]> trainingList;
+    List<String[]> testListBuggy;
+    List<String[]> trainingListBuggy;
+    List<String[]> testListDensity;
+    List<String[]> trainingListDensity;
     String[] header;
 
     public SplittingData(File file, List<String[]> testList, List<String[]> trainingList, String[] header) {
@@ -49,5 +53,37 @@ public class SplittingData {
 
     public void setHeader(String[] header) {
         this.header = header;
+    }
+
+    public List<String[]> getTrainingListDensity() {
+        return trainingListDensity;
+    }
+
+    public void setTrainingListDensity(List<String[]> trainingListDensity) {
+        this.trainingListDensity = trainingListDensity;
+    }
+
+    public List<String[]> getTestListDensity() {
+        return testListDensity;
+    }
+
+    public void setTestListDensity(List<String[]> testListDensity) {
+        this.testListDensity = testListDensity;
+    }
+
+    public List<String[]> getTrainingListBuggy() {
+        return trainingListBuggy;
+    }
+
+    public void setTrainingListBuggy(List<String[]> trainingListBuggy) {
+        this.trainingListBuggy = trainingListBuggy;
+    }
+
+    public List<String[]> getTestListBuggy() {
+        return testListBuggy;
+    }
+
+    public void setTestListBuggy(List<String[]> testListBuggy) {
+        this.testListBuggy = testListBuggy;
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.batch.item.ItemProcessor;
 import util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,7 +25,7 @@ public class SplittingProcessor implements ItemProcessor<List<File>, List<Splitt
         return splitDataList;
     }
 
-    private SplittingData splitFile(File file, double splitRatio) throws FileNotFoundException {
+    private SplittingData splitFile(File file, double splitRatio) throws Exception {
         CSVReader reader = new CSVReader(new FileReader(file), ';');
         Iterator<String[]> iterator = reader.iterator();
         String[] headers = iterator.next();
@@ -50,7 +49,60 @@ public class SplittingProcessor implements ItemProcessor<List<File>, List<Splitt
         replicateTrainingData(zeroIndexs, bugyIndexs);
         List<String[]> trainingSet = splitTrainingSet(mainList, zeroIndexs, bugyIndexs, headers);
         SplittingData splittingData = new SplittingData(file, testSet, trainingSet, headers);
+        calculateOtherModes(splittingData);
         return splittingData;
+    }
+
+    private void calculateOtherModes(SplittingData splittingData) throws Exception {
+        splittingData.setTestListBuggy(makeitBuggy(splittingData.getTestList()));
+        splittingData.setTestListDensity(makeitDensity(splittingData.getTestList()));
+        splittingData.setTrainingListBuggy(makeitBuggy(splittingData.getTrainingList()));
+        splittingData.setTrainingListDensity(makeitDensity(splittingData.getTrainingList()));
+    }
+
+    private List<String[]> makeitBuggy(List<String[]> list) {
+        int bugindex = list.get(0).length - 1;
+        List<String[]> newlist = new LinkedList<String[]>();
+        list.get(0)[bugindex] = "Class";
+        newlist.add(list.get(0));
+        for (int i = 1; i < list.size(); i++) {
+            String[] row = list.get(i);
+            String[] newrow = new String[row.length];
+            System.arraycopy(row, 0, newrow, 0, row.length);
+            newrow[bugindex] = Integer.parseInt(row[bugindex]) > 0 ? "Yes" : "No";
+            newlist.add(newrow);
+        }
+        return newlist;
+    }
+
+    private List<String[]> makeitDensity(List<String[]> list) throws Exception {
+        int bugindex = list.get(0).length - 1;
+        int locindex = findLocIndex(list.get(0));
+        list.get(0)[bugindex] = "Density";
+        List<String[]> newlist = new LinkedList<String[]>();
+        newlist.add(list.get(0));
+        for (int i = 1; i < list.size(); i++) {
+            String[] row = list.get(i);
+            String[] newrow = new String[row.length];
+            System.arraycopy(row, 0, newrow, 0, row.length);
+            Double density = (Double.parseDouble(row[bugindex]) / Double.parseDouble(row[locindex]) * 1000);
+            newrow[bugindex] = String.valueOf(density.intValue());
+            newlist.add(newrow);
+        }
+        return newlist;
+    }
+
+    private int findLocIndex(String[] strings) throws Exception {
+        int i = 0;
+        List<Object> list = ResourceUtils.getConfig().getList("cleanup.loc-column.header");
+        for (String s : strings) {
+            for (Object o : list) {
+                if (s.equals(o.toString()))
+                    return i;
+            }
+            i++;
+        }
+        throw new Exception("loc not found check the code");
     }
 
     private List<String[]> splitTestSet(double splitRatio, List<String[]> mainList,
