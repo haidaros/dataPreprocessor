@@ -13,6 +13,7 @@ public class Column {
     boolean isnative = true;
     double checkValue;
     List<String> column;
+    List<String> alternativeHeaderNames;
 
 
     public String getKey() {
@@ -74,5 +75,13 @@ public class Column {
 
     public void setColumn(List<String> column) {
         this.column = column;
+    }
+
+    public List<String> getAlternativeHeaderNames() {
+        return alternativeHeaderNames;
+    }
+
+    public void setAlternativeHeaderNames(List<String> alternativeHeaderNames) {
+        this.alternativeHeaderNames = alternativeHeaderNames;
     }
 }

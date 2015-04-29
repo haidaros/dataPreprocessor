@@ -1,15 +1,9 @@
 package dataPreprocessor;
 
-import batch.model.CleaningTargetHeader;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.Test;
 import util.ResourceUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by eg on 24/02/15.
@@ -23,18 +17,7 @@ public class DataExporterTest {
 
     @Test
     public void testConfig() {
-        Map<String, String> rowsToRemoveMap = new HashMap<String, String>();
-        List<String> columnsToRemoveList = new ArrayList<String>();
-        List<CleaningTargetHeader> targetList = new ArrayList<CleaningTargetHeader>();
 
-        List<HierarchicalConfiguration> configList = ResourceUtils.getConfig().configurationsAt("cleanup.rows-to-remove.item");
-        for (HierarchicalConfiguration c : configList) {
-            rowsToRemoveMap.put(c.getString("header"), c.getString("value"));
-        }
-        configList = ResourceUtils.getConfig().configurationsAt("cleanup.columns-to-remove.item");
-        for (HierarchicalConfiguration c : configList) {
-            columnsToRemoveList.add(c.getString("header"));
-        }
         System.out.println("end = ");
     }
 

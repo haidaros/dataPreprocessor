@@ -1,8 +1,7 @@
 package batch.cleaning;
 
 import batch.model.CleaningData;
-import batch.model.CleaningNecesseryColumn;
-import batch.model.CleaningTargetHeader;
+import batch.model.CleaningSpecialColumn;
 import com.opencsv.CSVReader;
 import dataPreprocessor.Column;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -24,7 +23,6 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
     public List<CleaningData> process(List<File> files) throws Exception {
         HashMap<String, String> rowsToRemoveMap = new HashMap<String, String>();
         List<String> columnsToRemoveList = new ArrayList<String>();
-        ArrayList<CleaningTargetHeader> targetList = new ArrayList<CleaningTargetHeader>();
         //Getting Configurations
         List<HierarchicalConfiguration> configList = ResourceUtils.getConfig().configurationsAt("cleanup.rows-to-remove.item");
         for (HierarchicalConfiguration c : configList) {
@@ -34,16 +32,9 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         for (HierarchicalConfiguration c : configList) {
             columnsToRemoveList.add(c.getString("header"));
         }
-        List<CleaningNecesseryColumn> necesseryColumns = new ArrayList<CleaningNecesseryColumn>();
-        configList = ResourceUtils.getConfig().configurationsAt("cleanup.necessery-columns.item");
-        for (HierarchicalConfiguration c : configList) {
-            necesseryColumns.add(new CleaningNecesseryColumn(c.getList("header")));
-        }
-
-        List<Object> list = ResourceUtils.getConfig().getList("cleanup.target-columns.header");
         List<CleaningData> processResult = new ArrayList<CleaningData>();
         for (File f : files) {
-            List<String[]> result = cleanFile(f, rowsToRemoveMap, columnsToRemoveList, list);
+            List<String[]> result = cleanFile(f, rowsToRemoveMap, columnsToRemoveList);
             CleaningData cleaningData = new CleaningData(f, result);
             processResult.add(cleaningData);
         }
@@ -51,21 +42,21 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
     }
 
     private List<String[]> cleanFile(File file, Map<String, String> rowsToRemoveMap,
-                                     List<String> columnsToRemoveList, List<Object> targetList) throws Exception {
-        CleaningTargetHeader cleaningTargetHeader = new CleaningTargetHeader(targetList);
-
-        List<CleaningNecesseryColumn> necesseryColumns = new ArrayList<CleaningNecesseryColumn>();
-        List<HierarchicalConfiguration> configList = ResourceUtils.getConfig().configurationsAt("cleanup.necessery-columns.item");
-        for (HierarchicalConfiguration c : configList) {
-            necesseryColumns.add(new CleaningNecesseryColumn(c.getList("header")));
-        }
+                                     List<String> columnsToRemoveList) throws Exception {
+        //Getting loc headers and targetheaders
+        List<Object> targetHeaderList = ResourceUtils.getConfig().getList("cleanup.target-columns.header");
+        List<Object> locHeaderList = ResourceUtils.getConfig().getList("cleanup.loc-column.header");
+        CleaningSpecialColumn target = new CleaningSpecialColumn(targetHeaderList);
+        target.setTarget(true);
+        CleaningSpecialColumn loc = new CleaningSpecialColumn(locHeaderList);
+        ArrayList<CleaningSpecialColumn> specialColumns = new ArrayList<CleaningSpecialColumn>();
+        specialColumns.add(target);
+        specialColumns.add(loc);
         CSVReader reader = new CSVReader(new FileReader(file), ';');
         Iterator<String[]> iterator = reader.iterator();
         String[] columnNames = iterator.next();
-        List<Column> fileColumns = exportColumnCSV(columnNames, rowsToRemoveMap, columnsToRemoveList, cleaningTargetHeader, necesseryColumns);
-        //check Lines of Code
-        List<CleaningNecesseryColumn> nfNColumns = checkNecesseryFiles(necesseryColumns, file);
-        mergeexternalColumn(fileColumns, nfNColumns, rowsToRemoveMap);
+        //Exporting Columns from file
+        List<Column> fileColumns = exportColumnCSV(columnNames, rowsToRemoveMap, columnsToRemoveList, specialColumns, file);
         List<String[]> items = new LinkedList<String[]>();
         items.add(getHeaderRow(fileColumns));
         int rowCount = 0;
@@ -73,7 +64,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             String[] entry = iterator.next();
             String[] values = new String[fileColumns.size()];
             boolean removethisrow = false;
-            String target = "";
+            String targetValue = "";
             int i = 0;
             for (Column c : fileColumns) {
                 Double value;
@@ -94,53 +85,17 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
                     v = String.valueOf(c.getColumn().get(rowCount)).trim();
 
                 if (c.isTarget()) {
-                    target = v;
+                    targetValue = v;
                 } else {
                     values[i++] = v;
                 }
             }
-            values[i++] = target;
+            values[i++] = targetValue;
             if (!removethisrow)
                 items.add(values);
             rowCount++;
         }
         return items;
-    }
-
-    private void mergeexternalColumn(List<Column> fileColumns, List<CleaningNecesseryColumn> nfNColumns, Map<String, String> rowsToRemoveMap) {
-        for (CleaningNecesseryColumn c : nfNColumns) {
-            Column col = new Column(c.getHeaderNames().get(0), 0);
-            col.setColumn(c.getColumn());
-            col.setIsnative(false);
-            for (Map.Entry<String, String> entry : rowsToRemoveMap.entrySet()) {
-                if (entry.getKey().equals(c.getHeaderNames().get(0)))
-                    col.setRowToCheck(true);
-            }
-            fileColumns.add(col);
-        }
-    }
-
-    private List<CleaningNecesseryColumn> checkNecesseryFiles(List<CleaningNecesseryColumn> necesseryColumns, File file) throws Exception {
-        boolean allfound = true;
-        List<CleaningNecesseryColumn> notFoundNecesseryColumns = new ArrayList<CleaningNecesseryColumn>();
-        for (CleaningNecesseryColumn cns : necesseryColumns) {
-            if (!cns.isExistbyDefault()) {
-                allfound = false;
-                notFoundNecesseryColumns.add(cns);
-            }
-        }
-
-        if (!allfound) {
-            for (CleaningNecesseryColumn cns : notFoundNecesseryColumns) {
-                List<String> column = lookForNecesseryColumn(cns.getHeaderNames(), file);
-                if (column != null) {
-                    cns.setColumn(column);
-                } else {
-                    throw new Exception("Necessery fields cannot be found in project directory.Necessery column :  " + cns.getHeaderNames() + " File :" + file.getAbsolutePath());
-                }
-            }
-        }
-        return notFoundNecesseryColumns;
     }
 
     private List<String> lookForNecesseryColumn(List<String> headerNames, File file) throws FileNotFoundException {
@@ -189,49 +144,82 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
     }
 
     private List<Column> exportColumnCSV(String[] headerrow, Map<String, String> rowsToRemoveMap,
-                                         List<String> columnsToRemoveList, CleaningTargetHeader targetHeader, List<CleaningNecesseryColumn> necesseryColumns) throws Exception {
+                                         List<String> columnsToRemoveList, List<CleaningSpecialColumn> specialColumns, File file) throws Exception {
         List<Column> columnNames = new ArrayList<Column>();
+        //Getting Existing Columns
+        int specialColumnFoundCount = 0;
         for (int i = 0; i < headerrow.length; i++) {
             boolean exclusion = false;
-            String cname = headerrow[i].trim();
+            String columnName = headerrow[i].trim();
             if (columnsToRemoveList != null) {
                 for (String s : columnsToRemoveList) {
-                    if (cname.equals(s.trim())) {
+                    if (columnName.equals(s.trim())) {
                         exclusion = true;
                     }
                 }
             }
-            Column column = new Column(cname, i);
-            if (!targetHeader.isFound())
-                for (String header : targetHeader.getAlternativeHeaderName()) {
-                    if (header.equals(cname)) {
-                        column.setTarget(true);
-                        targetHeader.setFound(true);
-                        targetHeader.setTargetColum(column);
+            Column column = new Column(columnName, i);
+
+            for (CleaningSpecialColumn csc : specialColumns) {
+                if (!csc.isExistbyDefault())
+                    for (String s : csc.getAlternativeHeaderNames()) {
+                        if (s.equals(columnName)) {
+                            csc.setExistbyDefault(true);
+                            column.setTarget(csc.isTarget());
+                            csc.setExistingColumn(column);
+                            specialColumnFoundCount++;
+                            break;
+                        }
                     }
-                }
-
-
-            for (Map.Entry<String, String> entry : rowsToRemoveMap.entrySet()) {
-                if (entry.getKey().equals(cname))
-                    column.setRowToCheck(true);
             }
 
-
-            for (CleaningNecesseryColumn cns : necesseryColumns) {
-                boolean found = false;
-                for (String s : cns.getHeaderNames()) {
-                    if (cname.contains(s))
-                        cns.setExistbyDefault(true);
-                }
-            }
-
-            if (!exclusion && !cname.equals("")) {
+            if (!exclusion && !columnName.equals("")) {
                 columnNames.add(column);
             }
         }
-        if (!targetHeader.isFound())
-            throw new Exception("All Target Headers is not Exist on this file");
+        if (specialColumnFoundCount < specialColumns.size()) {
+            findSpecialColumnsFromOtherFiles(columnNames, specialColumns, file);
+        } else if (specialColumnFoundCount > specialColumns.size()) {
+            throw new Exception("Special Columns Error check the code ");
+        }
+
+        for (Column c : columnNames) {
+            for (Map.Entry<String, String> entry : rowsToRemoveMap.entrySet()) {
+                if (c.isIsnative()) {
+                    if (c.getKey().equals(entry.getKey())) {
+                        c.setRowToCheck(true);
+                        c.setCheckValue(Double.parseDouble(entry.getValue().trim()));
+                        break;
+                    }
+                } else {
+                    for (String s : c.getAlternativeHeaderNames()) {
+                        if (s.equals(entry.getKey())) {
+                            c.setRowToCheck(true);
+                            c.setCheckValue(Double.parseDouble(entry.getValue().trim()));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         return columnNames;
+    }
+
+    private void findSpecialColumnsFromOtherFiles(List<Column> columnNames, List<CleaningSpecialColumn> specialColumns, File file) throws Exception {
+        for (CleaningSpecialColumn cns : specialColumns) {
+            List<String> column = lookForNecesseryColumn(cns.getAlternativeHeaderNames(), file);
+            if (column != null) {
+                cns.setExternalColumnSet(column);
+                cns.setExistbyDefault(false);
+                Column cl = new Column(cns.getAlternativeHeaderNames().get(0), 0);
+                cl.setAlternativeHeaderNames(cns.getAlternativeHeaderNames());
+                cl.setIsnative(false);
+                cl.setColumn(column);
+                columnNames.add(cl);
+            } else {
+                throw new Exception("Necessery fields cannot be found in project directory.Necessery column :  " + cns.getAlternativeHeaderNames() + " File :" + file.getAbsolutePath());
+            }
+        }
     }
 }
