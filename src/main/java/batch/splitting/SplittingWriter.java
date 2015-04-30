@@ -23,25 +23,28 @@ public class SplittingWriter implements ItemWriter<SplittingData> {
             String realName = s.getFile().getName().substring(0, s.getFile().getName().lastIndexOf("."));
             String fileNameTraining = projectFolderName + "/" + realName + "-training-bug-count.csv";
             String fileNameTest = projectFolderName + "/" + realName + "-test-bug-count.csv";
-            CSVWriter csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
+            CSVWriter csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
             csvWriter.writeAll(s.getTrainingList());
-            csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
+            csvWriter.close();
+            csvWriter = new CSVWriter(new FileWriter(fileNameTest));
             csvWriter.writeAll(s.getTestList());
             csvWriter.close();
             //Mode 2 Buggy
             fileNameTraining = projectFolderName + "/" + realName + "-training-buggy-class.csv";
             fileNameTest = projectFolderName + "/" + realName + "-test-buggy-class.csv";
-            csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
+            csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
             csvWriter.writeAll(s.getTrainingListBuggy());
-            csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
+            csvWriter.close();
+            csvWriter = new CSVWriter(new FileWriter(fileNameTest));
             csvWriter.writeAll(s.getTestListBuggy());
             csvWriter.close();
             //Mode 3 Density
             fileNameTraining = projectFolderName + "/" + realName + "-training-bug-density.csv";
             fileNameTest = projectFolderName + "/" + realName + "-test-bug-density.csv";
-            csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
+            csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
             csvWriter.writeAll(s.getTrainingListDensity());
-            csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
+            csvWriter.close();
+            csvWriter = new CSVWriter(new FileWriter(fileNameTest));
             csvWriter.writeAll(s.getTestListDensity());
             csvWriter.close();
         }

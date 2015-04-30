@@ -37,7 +37,6 @@ public class SplittingProcessor implements ItemProcessor<List<File>, List<Splitt
         List<Integer> zeroIndexs = new LinkedList<Integer>();
         List<Integer> bugyIndexs = new LinkedList<Integer>();
         for (int k = 0; k < mainList.size(); k++) {
-            System.out.println("k = " + k);
             String[] dataItem = mainList.get(k);
             if (Double.valueOf(dataItem[dataItem.length - 1].trim()) == 0) {
                 zeroIndexs.add(k);
