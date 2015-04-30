@@ -21,24 +21,24 @@ public class SplittingWriter implements ItemWriter<SplittingData> {
             new File(projectFolderName).mkdir();
             //Mode 1 Number Of Bugs
             String realName = s.getFile().getName().substring(0, s.getFile().getName().lastIndexOf("."));
-            String fileNameTraining = projectFolderName + "/" + realName + "-trainig-NumberOfBugs.csv";
-            String fileNameTest = projectFolderName + "/" + realName + "-test-NumberOfBugs.csv";
+            String fileNameTraining = projectFolderName + "/" + realName + "-training-bug-count.csv";
+            String fileNameTest = projectFolderName + "/" + realName + "-test-bug-count.csv";
             CSVWriter csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
             csvWriter.writeAll(s.getTrainingList());
             csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
             csvWriter.writeAll(s.getTestList());
             csvWriter.close();
             //Mode 2 Buggy
-            fileNameTraining = projectFolderName + "/" + realName + "-trainig-Buggy.csv";
-            fileNameTest = projectFolderName + "/" + realName + "-test-Buggy.csv";
+            fileNameTraining = projectFolderName + "/" + realName + "-training-buggy-class.csv";
+            fileNameTest = projectFolderName + "/" + realName + "-test-buggy-class.csv";
             csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
             csvWriter.writeAll(s.getTrainingListBuggy());
             csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');
             csvWriter.writeAll(s.getTestListBuggy());
             csvWriter.close();
             //Mode 3 Density
-            fileNameTraining = projectFolderName + "/" + realName + "-trainig-Density.csv";
-            fileNameTest = projectFolderName + "/" + realName + "-test-Density.csv";
+            fileNameTraining = projectFolderName + "/" + realName + "-training-bug-density.csv";
+            fileNameTest = projectFolderName + "/" + realName + "-test-bug-density.csv";
             csvWriter = new CSVWriter(new FileWriter(fileNameTraining), ';');
             csvWriter.writeAll(s.getTrainingListDensity());
             csvWriter = new CSVWriter(new FileWriter(fileNameTest), ';');

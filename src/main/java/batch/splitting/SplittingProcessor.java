@@ -63,11 +63,13 @@ public class SplittingProcessor implements ItemProcessor<List<File>, List<Splitt
     private List<String[]> makeitBuggy(List<String[]> list) {
         int bugindex = list.get(0).length - 1;
         List<String[]> newlist = new LinkedList<String[]>();
-        list.get(0)[bugindex] = "Class";
-        newlist.add(list.get(0));
+        String[] newrow = new String[list.get(0).length];
+        System.arraycopy(list.get(0), 0, newrow, 0, list.get(0).length);
+        newrow[bugindex] = "Buggy";
+        newlist.add(newrow);
         for (int i = 1; i < list.size(); i++) {
             String[] row = list.get(i);
-            String[] newrow = new String[row.length];
+            newrow = new String[row.length];
             System.arraycopy(row, 0, newrow, 0, row.length);
             newrow[bugindex] = Integer.parseInt(row[bugindex]) > 0 ? "Yes" : "No";
             newlist.add(newrow);
@@ -77,32 +79,21 @@ public class SplittingProcessor implements ItemProcessor<List<File>, List<Splitt
 
     private List<String[]> makeitDensity(List<String[]> list) throws Exception {
         int bugindex = list.get(0).length - 1;
-        int locindex = findLocIndex(list.get(0));
-        list.get(0)[bugindex] = "Density";
+        int locindex = list.get(0).length - 2;
         List<String[]> newlist = new LinkedList<String[]>();
-        newlist.add(list.get(0));
+        String[] newrow = new String[list.get(0).length];
+        System.arraycopy(list.get(0), 0, newrow, 0, list.get(0).length);
+        newrow[bugindex] = "Density";
+        newlist.add(newrow);
         for (int i = 1; i < list.size(); i++) {
             String[] row = list.get(i);
-            String[] newrow = new String[row.length];
+            newrow = new String[row.length];
             System.arraycopy(row, 0, newrow, 0, row.length);
             Double density = (Double.parseDouble(row[bugindex]) / Double.parseDouble(row[locindex]) * 1000);
             newrow[bugindex] = String.valueOf(density.intValue());
             newlist.add(newrow);
         }
         return newlist;
-    }
-
-    private int findLocIndex(String[] strings) throws Exception {
-        int i = 0;
-        List<Object> list = ResourceUtils.getConfig().getList("cleanup.loc-column.header");
-        for (String s : strings) {
-            for (Object o : list) {
-                if (s.equals(o.toString()))
-                    return i;
-            }
-            i++;
-        }
-        throw new Exception("loc not found check the code");
     }
 
     private List<String[]> splitTestSet(double splitRatio, List<String[]> mainList,
