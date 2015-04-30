@@ -9,6 +9,7 @@ public class Column {
     private String key;
     private int value;
     boolean isTarget = false;
+    boolean isLoc = false;
     boolean isRowToCheck = false;
     boolean isnative = true;
     double checkValue;
@@ -83,5 +84,13 @@ public class Column {
 
     public void setAlternativeHeaderNames(List<String> alternativeHeaderNames) {
         this.alternativeHeaderNames = alternativeHeaderNames;
+    }
+
+    public boolean isLoc() {
+        return isLoc;
+    }
+
+    public void setLoc(boolean isLoc) {
+        this.isLoc = isLoc;
     }
 }

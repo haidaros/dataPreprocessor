@@ -1,70 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<input-path>
-		/Users/eg/Desktop/Projects/dataPreprocessor/src/test/resources/datasets
-	</input-path>
-	<cleanup>
-		<rows-to-remove>
-			<item>
-				<header>numberOfLinesOfCode</header>
-				<value>0</value>
-			</item>
-		</rows-to-remove>
+    <input-path>
+        /Users/eg/Desktop/Projects/dataPreprocessor/src/test/resources/datasets
+    </input-path>
+    <cleanup>
+        <rows-to-remove>
+            <item>
+                <header>numberOfLinesOfCode</header>
+                <value>0</value>
+            </item>
+        </rows-to-remove>
 
-		<columns-to-remove>
-			<item>
-				<header>majorBugs</header>
-			</item>
-			<item>
-				<header>criticalBugs</header>
-			</item>
-			<item>
-				<header>highPriorityBugs</header>
-			</item>
-			<item>
-				<header>nonTrivialBugs</header>
-			</item>
-		</columns-to-remove>
-		<loc-column>
-			<header>numberOfLinesOfCode</header>
-		</loc-column>
-		<target-columns>
-			<header>bugs</header>
-			<header>nBug</header>
-		</target-columns>
-	</cleanup>
+        <columns-to-remove>
+            <item>
+                <header>majorBugs</header>
+            </item>
+            <item>
+                <header>criticalBugs</header>
+            </item>
+            <item>
+                <header>highPriorityBugs</header>
+            </item>
+            <item>
+                <header>nonTrivialBugs</header>
+            </item>
+        </columns-to-remove>
+        <loc-column>
+            <header>numberOfLinesOfCode</header>
+        </loc-column>
+        <target-columns>
+            <header>bugs</header>
+            <header>nBug</header>
+        </target-columns>
+    </cleanup>
 
-	<splitting>
-		<test-ratio>0.25
-		</test-ratio>
-	</splitting>
+    <splitting>
+        <test-ratio>0.25
+        </test-ratio>
+    </splitting>
 
-	<predictions>
-		<mode name="buggy-class">
-			<model>RandomForest</model>
-			<model>IBk</model>
-			<model>SMO</model>
-			<model>MultilayerPerceptron</model>
-		</mode>
-		<mode name="bug-density">
-			<model>LinearRegression</model>
-			<model>IBk</model>
-			<model>SMOreg</model>
-			<model>MultilayerPerceptron</model>
-		</mode>
-		<mode name="bug-count">
-			<model>LinearRegression</model>
-			<model>IBk</model>
-			<model>SMOreg</model>
-			<model>MultilayerPerceptron</model>
-		</mode>
-
-		<mode name="bug-proneness">
-			<model>RandomForest</model>
-			<model>IBk</model>
-			<model>J48</model>
-		</mode>
-	</predictions>
+    <predictions>
+        <mode>
+            <name>buggy-class</name>
+            <model>RandomForest</model>
+            <model>IBk</model>
+            <model>SMO</model>
+            <model>MultilayerPerceptron</model>
+        </mode>
+        <mode>
+            <name>bug-density</name>
+            <model>LinearRegression</model>
+            <model>IBk</model>
+            <model>SMOreg</model>
+            <model>MultilayerPerceptron</model>
+        </mode>
+        <mode>
+            <name>bug-count</name>
+            <model>LinearRegression</model>
+            <model>IBk</model>
+            <model>SMOreg</model>
+            <model>MultilayerPerceptron</model>
+        </mode>
+        <mode>
+            <name>bug-proneness</name>
+            <model>RandomForest</model>
+            <model>IBk</model>
+            <model>J48</model>
+        </mode>
+    </predictions>
 </configuration>
 
 

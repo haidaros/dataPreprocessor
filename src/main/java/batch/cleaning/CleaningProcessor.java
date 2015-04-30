@@ -44,11 +44,13 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
     private List<String[]> cleanFile(File file, Map<String, String> rowsToRemoveMap,
                                      List<String> columnsToRemoveList) throws Exception {
         //Getting loc headers and targetheaders
+        System.out.println("file.getName() = " + file.getName());
         List<Object> targetHeaderList = ResourceUtils.getConfig().getList("cleanup.target-columns.header");
         List<Object> locHeaderList = ResourceUtils.getConfig().getList("cleanup.loc-column.header");
         CleaningSpecialColumn target = new CleaningSpecialColumn(targetHeaderList);
         target.setTarget(true);
         CleaningSpecialColumn loc = new CleaningSpecialColumn(locHeaderList);
+        loc.setLoc(true);
         ArrayList<CleaningSpecialColumn> specialColumns = new ArrayList<CleaningSpecialColumn>();
         specialColumns.add(target);
         specialColumns.add(loc);
@@ -65,6 +67,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             String[] values = new String[fileColumns.size()];
             boolean removethisrow = false;
             String targetValue = "";
+            String locValue = "";
             int i = 0;
             for (Column c : fileColumns) {
                 Double value;
@@ -86,10 +89,13 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
 
                 if (c.isTarget()) {
                     targetValue = v;
+                } else if (c.isLoc()) {
+                    locValue = v;
                 } else {
                     values[i++] = v;
                 }
             }
+            values[i++] = locValue;
             values[i++] = targetValue;
             if (!removethisrow)
                 items.add(values);
@@ -132,13 +138,16 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         String[] columnNames = new String[fileColumns.size()];
         int i = 0;
         String target = "";
+        String loc = "";
         for (Column c : fileColumns) {
-            if (!c.isTarget())
-                columnNames[i++] = c.getKey();
-            else
+            if (c.isTarget())
                 target = c.getKey();
-
+            else if (c.isLoc())
+                loc = c.getKey();
+            else
+                columnNames[i++] = c.getKey();
         }
+        columnNames[i++] = loc;
         columnNames[i] = target;
         return columnNames;
     }
@@ -166,6 +175,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
                         if (s.equals(columnName)) {
                             csc.setExistbyDefault(true);
                             column.setTarget(csc.isTarget());
+                            column.setLoc(csc.isLoc());
                             csc.setExistingColumn(column);
                             specialColumnFoundCount++;
                             break;
@@ -208,17 +218,21 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
 
     private void findSpecialColumnsFromOtherFiles(List<Column> columnNames, List<CleaningSpecialColumn> specialColumns, File file) throws Exception {
         for (CleaningSpecialColumn cns : specialColumns) {
-            List<String> column = lookForNecesseryColumn(cns.getAlternativeHeaderNames(), file);
-            if (column != null) {
-                cns.setExternalColumnSet(column);
-                cns.setExistbyDefault(false);
-                Column cl = new Column(cns.getAlternativeHeaderNames().get(0), 0);
-                cl.setAlternativeHeaderNames(cns.getAlternativeHeaderNames());
-                cl.setIsnative(false);
-                cl.setColumn(column);
-                columnNames.add(cl);
-            } else {
-                throw new Exception("Necessery fields cannot be found in project directory.Necessery column :  " + cns.getAlternativeHeaderNames() + " File :" + file.getAbsolutePath());
+            if (!cns.isExistbyDefault()) {
+                List<String> column = lookForNecesseryColumn(cns.getAlternativeHeaderNames(), file);
+                if (column != null) {
+                    cns.setExternalColumnSet(column);
+                    cns.setExistbyDefault(false);
+                    Column cl = new Column(cns.getAlternativeHeaderNames().get(0), 0);
+                    cl.setAlternativeHeaderNames(cns.getAlternativeHeaderNames());
+                    cl.setIsnative(false);
+                    cl.setColumn(column);
+                    cl.setTarget(cns.isTarget());
+                    cl.setLoc(cns.isLoc());
+                    columnNames.add(cl);
+                } else {
+                    throw new Exception("Necessery fields cannot be found in project directory.Necessery column :  " + cns.getAlternativeHeaderNames() + " File :" + file.getAbsolutePath());
+                }
             }
         }
     }
