@@ -18,15 +18,10 @@ public class CleaningReader implements ItemReader<List<File>> {
         String folderName = ResourceUtils.getConfig().getString("input-path");
         File folder = new File(folderName);
         List<File> files = new ArrayList<File>();
-        for (final File fileEntry : folder.listFiles()) {
-            if(fileEntry.isDirectory()){
-                for(File ff : fileEntry.listFiles()){
-                    if (!ff.isDirectory() && ff.getName().contains(".csv")) {
-                        files.add(ff);
-                    }
-                }
+        for (final File projectFolder : folder.listFiles()) {
+            if (projectFolder.isDirectory()) {
+                files.add(projectFolder);
             }
-
         }
         return files;
     }

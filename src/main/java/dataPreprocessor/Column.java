@@ -8,14 +8,17 @@ import java.util.List;
 public class Column {
     private String key;
     private int value;
-    boolean isTarget = false;
-    boolean isLoc = false;
     boolean isRowToCheck = false;
-    boolean isnative = true;
     double checkValue;
+    boolean isTarget = false;
     List<String> column;
     List<String> alternativeHeaderNames;
 
+
+    public Column(String key, int value) {
+        this.key = key;
+        this.value = value;
+    }
 
     public String getKey() {
         return key;
@@ -31,19 +34,6 @@ public class Column {
 
     public void setValue(int value) {
         this.value = value;
-    }
-
-    public Column(String key, int value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public boolean isTarget() {
-        return isTarget;
-    }
-
-    public void setTarget(boolean isTarget) {
-        this.isTarget = isTarget;
     }
 
     public boolean isRowToCheck() {
@@ -62,14 +52,6 @@ public class Column {
         this.checkValue = checkValue;
     }
 
-    public boolean isIsnative() {
-        return isnative;
-    }
-
-    public void setIsnative(boolean isnative) {
-        this.isnative = isnative;
-    }
-
     public List<String> getColumn() {
         return column;
     }
@@ -86,11 +68,11 @@ public class Column {
         this.alternativeHeaderNames = alternativeHeaderNames;
     }
 
-    public boolean isLoc() {
-        return isLoc;
+    public boolean isTarget() {
+        return isTarget;
     }
 
-    public void setLoc(boolean isLoc) {
-        this.isLoc = isLoc;
+    public void setTarget(boolean isTarget) {
+        this.isTarget = isTarget;
     }
 }

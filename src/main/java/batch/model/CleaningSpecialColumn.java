@@ -1,9 +1,8 @@
 package batch.model;
 
-import dataPreprocessor.Column;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by eg on 27/04/15.
@@ -11,10 +10,8 @@ import java.util.List;
 
 public class CleaningSpecialColumn {
     List<String> alternativeHeaderNames;
-    boolean ExistbyDefault = false;
-    boolean isTarget = false;
-    List<String> externalColumnSet;
-    Column existingColumn;
+    Map<String, String> externalColumnSet;
+    boolean found = false;
 
     public CleaningSpecialColumn(List<Object> array) {
         alternativeHeaderNames = new ArrayList<String>();
@@ -31,35 +28,19 @@ public class CleaningSpecialColumn {
         this.alternativeHeaderNames = alternativeHeaderNames;
     }
 
-    public boolean isExistbyDefault() {
-        return ExistbyDefault;
-    }
-
-    public void setExistbyDefault(boolean existbyDefault) {
-        ExistbyDefault = existbyDefault;
-    }
-
-    public List<String> getExternalColumnSet() {
+    public Map<String, String> getExternalColumnSet() {
         return externalColumnSet;
     }
 
-    public void setExternalColumnSet(List<String> externalColumnSet) {
+    public void setExternalColumnSet(Map<String, String> externalColumnSet) {
         this.externalColumnSet = externalColumnSet;
     }
 
-    public Column getExistingColumn() {
-        return existingColumn;
+    public boolean isFound() {
+        return found;
     }
 
-    public void setExistingColumn(Column existingColumn) {
-        this.existingColumn = existingColumn;
-    }
-
-    public boolean isTarget() {
-        return isTarget;
-    }
-
-    public void setTarget(boolean isTarget) {
-        this.isTarget = isTarget;
+    public void setFound(boolean found) {
+        this.found = found;
     }
 }

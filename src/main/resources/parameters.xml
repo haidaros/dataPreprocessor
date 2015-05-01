@@ -25,6 +25,9 @@
                 <header>nonTrivialBugs</header>
             </item>
         </columns-to-remove>
+        <class-name-column>
+            <header>classname</header>
+        </class-name-column>
         <loc-column>
             <header>numberOfLinesOfCode</header>
         </loc-column>
