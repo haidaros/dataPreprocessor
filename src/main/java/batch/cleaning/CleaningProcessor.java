@@ -36,15 +36,14 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             columnsToRemoveList.add(c.getString("header"));
         }
         //creation of DB file
-        List<DbItem> dbItemList;
-        for (File project : projectFolders) {
-            dbItemList = createDb(project);
-        }
+        Map<String, String> classLocMap = null;
         List<CleaningData> processResult = new ArrayList<CleaningData>();
-        for (File f : projectFolders) {
-            for (File file : f.listFiles()) {
+
+        for (File project : projectFolders) {
+            classLocMap = createDb(project);
+            for (File file : project.listFiles()) {
                 if (file.getName().contains(".csv")) {
-                    List<String[]> result = cleanFile(file, rowsToRemoveMap, columnsToRemoveList);
+                    List<String[]> result = cleanFile(file, rowsToRemoveMap, columnsToRemoveList, classLocMap);
                     CleaningData cleaningData = new CleaningData(file, result);
                     processResult.add(cleaningData);
                 }
@@ -53,7 +52,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         return processResult;
     }
 
-    private List<DbItem> createDb(File project) throws Exception {
+    private Map<String, String> createDb(File project) throws Exception {
         List<Object> targetHeaderList = ResourceUtils.getConfig().getList("cleanup.target-columns.header");
         List<Object> locHeaderList = ResourceUtils.getConfig().getList("cleanup.loc-column.header");
         List<Object> classNameHeaderList = ResourceUtils.getConfig().getList("cleanup.class-name-column.header");
@@ -61,6 +60,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         CleaningSpecialColumn loc = new CleaningSpecialColumn(locHeaderList);
         CleaningSpecialColumn header = new CleaningSpecialColumn(classNameHeaderList);
         Map<String, String> headerColumn = lookForNecesseryColumn(header, project.listFiles()[0]);
+        Map<String, String> classNameLocMap = null;
         List<DbItem> dbItemList = new LinkedList<DbItem>();
         for (Map.Entry<String, String> s : headerColumn.entrySet()) {
             dbItemList.add(new DbItem(s.getKey()));
@@ -72,7 +72,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
                 target.setFound(true);
             }
             if (!loc.isFound()) {
-                Map<String, String> classNameLocMap = lookForNecesseryColumn(loc, f);
+                classNameLocMap = lookForNecesseryColumn(loc, f);
                 loc.setExternalColumnSet(classNameLocMap);
                 loc.setFound(true);
             }
@@ -85,7 +85,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             new File(s).mkdir();
             s = s + "/" + project.getName();
             new File(s).mkdir();
-            CSVWriter csvWriter = new CSVWriter(new FileWriter(s + "/db.csv"));
+            CSVWriter csvWriter = new CSVWriter(new FileWriter(s + "/db.csv"), ';');
             String[] fileHeader = {"classname", "loc", "bug"};
             csvWriter.writeNext(fileHeader);
             for (DbItem item : dbItemList) {
@@ -94,14 +94,13 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
                 csvWriter.writeNext(item.toArray());
             }
             csvWriter.close();
-            return dbItemList;
+            return classNameLocMap;
         } else
             throw new Exception("Project folder : " + project.getName() + "is not include Target column or Lines of Code column in any file ");
     }
 
-
     private List<String[]> cleanFile(File file, Map<String, String> rowsToRemoveMap,
-                                     List<String> columnsToRemoveList) throws Exception {
+                                     List<String> columnsToRemoveList, Map<String, String> classLocMap) throws Exception {
         //Getting loc headers and targetheaders
         CSVReader reader = new CSVReader(new FileReader(file), ';');
         Iterator<String[]> iterator = reader.iterator();
@@ -110,7 +109,6 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         List<Column> fileColumns = exportColumnCSV(columnNames, rowsToRemoveMap, columnsToRemoveList, file);
         List<String[]> items = new LinkedList<String[]>();
         items.add(getHeaderRow(fileColumns));
-        int rowCount = 0;
         while (iterator.hasNext()) {
             String[] entry = iterator.next();
             String[] values = new String[fileColumns.size()];
@@ -119,6 +117,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             int i = 0;
             for (Column c : fileColumns) {
                 Double value;
+                //checkrowrestrictions
                 if (c.isRowToCheck()) {
                     value = Double.valueOf(entry[c.getValue()].trim());
                     if (value == c.getCheckValue()) {
@@ -135,9 +134,10 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
                 }
             }
             values[i++] = targetValue;
-            if (!removethisrow)
-                items.add(values);
-            rowCount++;
+            if (!removethisrow) {
+                if (Double.parseDouble(classLocMap.get(values[0])) > 0)
+                    items.add(values);
+            }
         }
         return items;
     }
@@ -167,7 +167,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         Map<String, String> column = new HashMap<String, String>();
         while (iterator.hasNext()) {
             String[] next = iterator.next();
-            column.put(next[0], next[i]);
+            column.put(next[0].trim(), next[i].trim());
         }
         return column;
     }
