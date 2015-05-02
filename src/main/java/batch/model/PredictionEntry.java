@@ -4,6 +4,7 @@ package batch.model;
  * Created by eg on 29/04/15.
  */
 public class PredictionEntry {
+    String className;
     int loc;
     int bug;
     double percentageLoc;
@@ -15,6 +16,14 @@ public class PredictionEntry {
 
 
     public PredictionEntry() {
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public int getLoc() {
@@ -79,5 +88,13 @@ public class PredictionEntry {
 
     public void setPredictionProbability(double predictionProbability) {
         this.predictionProbability = predictionProbability;
+    }
+
+    public String[] getProneArray() {
+        return new String[]{className, String.valueOf(loc), String.valueOf(bug), String.valueOf(prediction), String.valueOf(predictionProbability)};
+    }
+
+    public String[] getArray() {
+        return new String[]{className, String.valueOf(loc), String.valueOf(bug), String.valueOf(prediction)};
     }
 }

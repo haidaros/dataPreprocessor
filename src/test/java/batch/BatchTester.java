@@ -9,6 +9,7 @@ import batch.model.PredictionModel;
 import batch.model.SplittingData;
 import batch.prediction.PredictionProcessor;
 import batch.prediction.PredictionReader;
+import batch.prediction.PredictionWriter;
 import batch.splitting.SplittingProcessor;
 import batch.splitting.SplittingReader;
 import batch.splitting.SplittingWriter;
@@ -61,7 +62,8 @@ public class BatchTester {
         Map<File, File> read = reader.read();
         PredictionProcessor processor = new PredictionProcessor();
         List<PredictionData> process = processor.process(read);
-//        PredictionWriter writer = new PredictionWriter();
-//        writer.write(process);
+        System.out.println("yes");
+        PredictionWriter writer = new PredictionWriter();
+        writer.write(process);
     }
 }

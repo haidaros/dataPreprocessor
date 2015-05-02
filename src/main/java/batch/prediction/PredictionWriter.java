@@ -1,8 +1,14 @@
 package batch.prediction;
 
 import batch.model.PredictionData;
+import batch.model.PredictionEntry;
+import com.opencsv.CSVWriter;
 import org.springframework.batch.item.ItemWriter;
+import util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -10,6 +16,36 @@ import java.util.List;
  */
 public class PredictionWriter implements ItemWriter<PredictionData> {
     public void write(List<? extends PredictionData> predictionDatas) throws Exception {
+        String[] header = {"ClassName", "Lines of Code", "Number Of Bugs", "Prediction"};
+        String[] headerProne = {"ClassName", "Lines of Code", "Number Of Bugs", "Prediction", "Prediction Probability"};
+        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/predictions";
+        new File(mainfolderName).mkdir();
+        for (PredictionData pd : predictionDatas) {
+            String projectName = mainfolderName + "/" + pd.getFile().getParentFile().getName();
+            System.out.println("projectName = " + projectName);
+            new File(projectName).mkdir();
+            createOutput(projectName, pd.getFile(), pd.getPredictionEntries(), header);
+            if (pd.getPronepredictionEntries() != null)
+                createOutputProne(projectName, pd.getFile(), pd.getPronepredictionEntries(), headerProne);
 
+        }
+    }
+
+    private void createOutput(String folderName, File f, List<PredictionEntry> predictionEntries, String[] header) throws IOException {
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName()), ';');
+        csvWriter.writeNext(header);
+        for (PredictionEntry p : predictionEntries) {
+            csvWriter.writeNext(p.getArray());
+        }
+        csvWriter.close();
+    }
+
+    private void createOutputProne(String folderName, File f, List<PredictionEntry> predictionEntries, String[] header) throws IOException {
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName()), ';');
+        csvWriter.writeNext(header);
+        for (PredictionEntry p : predictionEntries) {
+            csvWriter.writeNext(p.getProneArray());
+        }
+        csvWriter.close();
     }
 }

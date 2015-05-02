@@ -113,6 +113,7 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
         while (iterator.hasNext()) {
             String[] next = iterator.next();
             PredictionEntry entry = new PredictionEntry();
+            entry.setClassName(next[0]);
             int bug = db.getBug(next[0]);
             int loc = db.getLoc(next[0]);
             totalBug += bug;
