@@ -21,7 +21,7 @@ public class SplittingReader implements ItemReader<List<File>> {
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isDirectory()) {
                 for (File ff : fileEntry.listFiles()) {
-                    if (!ff.isDirectory() && ff.getName().contains(".csv")) {
+                    if (!ff.isDirectory() && ff.getName().contains(".csv") && !ff.getName().equals("db.csv")) {
                         files.add(ff);
                     }
                 }

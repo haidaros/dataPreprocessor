@@ -1,5 +1,6 @@
 package batch.prediction;
 
+import batch.model.Db;
 import batch.model.PredictionData;
 import batch.model.PredictionEntry;
 import batch.model.PredictionModel;
@@ -29,28 +30,32 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
         }
         List<PredictionData> predictionDatas = new LinkedList<PredictionData>();
         for (Map.Entry<File, File> f : files.entrySet()) {
-            predictionDatas.add(predictFile(f, modelList));
+            String projectName = f.getKey().getParentFile().getName();
+            String folderName = ResourceUtils.getConfig().getString("input-path");
+            String dbName = new File(folderName).getParent() + "/cleaned" + "/" + projectName + "/db.csv";
+            Db db = ResourceUtils.readDB(dbName);
+            predictionDatas.add(predictFile(f, modelList, db));
         }
         return predictionDatas;
     }
 
-    private PredictionData predictFile(Map.Entry<File, File> f, List<PredictionModel> modelList) throws Exception {
+    private PredictionData predictFile(Map.Entry<File, File> f, List<PredictionModel> modelList, Db db) throws Exception {
         Map<File, List<PredictionEntry>> resultMap = new HashMap<File, List<PredictionEntry>>();
         PredictionData pd = new PredictionData();
         pd.setFile(f.getValue());
         if (f.getKey().getName().contains("bug-count")) {
-            pd.setPredictionEntries(predict(f, findModel(modelList, "bug-count"), false));
+            pd.setPredictionEntries(predict(f, findModel(modelList, "bug-count"), false, db));
         } else if (f.getKey().getName().contains("buggy-class")) {
             pd.setProne(true);
-            pd.setPredictionEntries(predict(f, findModel(modelList, "buggy-class"), false));
-            pd.setPronepredictionEntries(predict(f, findModel(modelList, "bug-proneness"), true));
+            pd.setPredictionEntries(predict(f, findModel(modelList, "buggy-class"), false, db));
+            pd.setPronepredictionEntries(predict(f, findModel(modelList, "bug-proneness"), true, db));
         } else if (f.getKey().getName().contains("bug-density")) {
-            pd.setPredictionEntries(predict(f, findModel(modelList, "bug-density"), false));
+            pd.setPredictionEntries(predict(f, findModel(modelList, "bug-density"), false, db));
         }
         return pd;
     }
 
-    private List<PredictionEntry> predict(Map.Entry<File, File> f, PredictionModel model, boolean isProne) throws Exception {
+    private List<PredictionEntry> predict(Map.Entry<File, File> f, PredictionModel model, boolean isProne, Db db) throws Exception {
         for (String classifierName : model.getModes()) {
             System.out.println("f.getKey() = " + f.getKey());
             System.out.println("f.getValue() = " + f.getValue());
@@ -80,7 +85,7 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
             if (classifier != null) {
                 classifier.buildClassifier(trainingDataSet);
                 List<PredictionEntry> predictionResult = new LinkedList<PredictionEntry>();
-                int totals[] = countTotalBug(f.getValue(), predictionResult);
+                int totals[] = countTotalBug(f.getValue(), predictionResult, db);
                 for (int i = 0; i < testDataSet.numInstances(); i++) {
                     Double pred = classifier.classifyInstance(testDataSet.instance(i));
                     double[] probabilityandDistribution = classifier.distributionForInstance(testDataSet.instance(i));
@@ -99,7 +104,7 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
         return null;
     }
 
-    private int[] countTotalBug(File file, List<PredictionEntry> predictionResult) throws FileNotFoundException {
+    private int[] countTotalBug(File file, List<PredictionEntry> predictionResult, Db db) throws FileNotFoundException {
         CSVReader reader = new CSVReader(new FileReader(file), ',');
         Iterator<String[]> iterator = reader.iterator();
         iterator.next(); //skip header column
@@ -108,8 +113,8 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
         while (iterator.hasNext()) {
             String[] next = iterator.next();
             PredictionEntry entry = new PredictionEntry();
-            int bug = (int) Double.parseDouble(next[next.length - 1].trim());
-            int loc = (int) Double.parseDouble(next[next.length - 2].trim());
+            int bug = db.getBug(next[0]);
+            int loc = db.getLoc(next[0]);
             totalBug += bug;
             totalLoc += loc;
             entry.setBug(bug);

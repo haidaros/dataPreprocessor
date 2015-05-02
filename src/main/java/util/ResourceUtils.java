@@ -1,11 +1,17 @@
 package util;
 
+import batch.model.Db;
+import com.opencsv.CSVReader;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class ResourceUtils {
     static XMLConfiguration config;
@@ -39,4 +45,22 @@ public class ResourceUtils {
         return config;
     }
 
+    public static Db readDB(String dbName) {
+        try {
+            CSVReader reader = new CSVReader(new FileReader(dbName), ';');
+            Iterator<String[]> iterator = reader.iterator();
+            Map<String, String> locMap = new HashMap<String, String>();
+            Map<String, String> targetMap = new HashMap<String, String>();
+            iterator.next(); // for skiping header
+            while (iterator.hasNext()) {
+                String[] next = iterator.next();
+                locMap.put(next[0], next[1]);
+                targetMap.put(next[0], next[2]);
+            }
+            return new Db(locMap, targetMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
 }
