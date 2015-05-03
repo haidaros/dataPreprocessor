@@ -33,7 +33,7 @@ public class PredictionWriter implements ItemWriter<PredictionData> {
 
     private void createOutput(String folderName, File f, List<PredictionEntry> predictionEntries, String[] header) throws IOException {
         CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName()), ';');
-        csvWriter.writeNext(header);
+        csvWriter.writeNext(predictionEntries.get(0).getHeaderArray());
         for (PredictionEntry p : predictionEntries) {
             csvWriter.writeNext(p.getArray());
         }
@@ -41,8 +41,8 @@ public class PredictionWriter implements ItemWriter<PredictionData> {
     }
 
     private void createOutputProne(String folderName, File f, List<PredictionEntry> predictionEntries, String[] header) throws IOException {
-        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName()), ';');
-        csvWriter.writeNext(header);
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName().substring(0, f.getName().indexOf("-buggy")) + "-prone.csv"), ';');
+        csvWriter.writeNext(predictionEntries.get(0).getHeaderProneArray());
         for (PredictionEntry p : predictionEntries) {
             csvWriter.writeNext(p.getProneArray());
         }

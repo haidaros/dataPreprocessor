@@ -1,10 +1,6 @@
 package batch.prediction;
 
-import batch.model.Db;
-import batch.model.PredictionData;
-import batch.model.PredictionEntry;
-import batch.model.PredictionModel;
-import com.opencsv.CSVReader;
+import batch.model.*;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.springframework.batch.item.ItemProcessor;
 import util.ResourceUtils;
@@ -14,8 +10,10 @@ import weka.core.converters.ConverterUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by eg on 29/04/15.
@@ -56,20 +54,19 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
     }
 
     private List<PredictionEntry> predict(Map.Entry<File, File> f, PredictionModel model, boolean isProne, Db db) throws Exception {
+        List<PredictionEntry> predictionResult = new LinkedList<PredictionEntry>();
+        ConverterUtils.DataSource training = new ConverterUtils.DataSource(f.getKey().getAbsolutePath());
+        ConverterUtils.DataSource test = new ConverterUtils.DataSource(f.getValue().getAbsolutePath());
+        //**
+        Instances trainingDataSet = training.getDataSet();
+        Instances testDataSet = test.getDataSet();
+        trainingDataSet.setClassIndex(trainingDataSet.numAttributes() - 1);
+        testDataSet.setClassIndex(testDataSet.numAttributes() - 1);
+        //**
+        Classifier classifier;
+        Class clazz;
+        int totals[] = countTotalBug(f.getValue(), predictionResult, db);
         for (String classifierName : model.getModes()) {
-            System.out.println("f.getKey() = " + f.getKey());
-            System.out.println("f.getValue() = " + f.getValue());
-            ConverterUtils.DataSource training = new ConverterUtils.DataSource(f.getKey().getAbsolutePath());
-            ConverterUtils.DataSource test = new ConverterUtils.DataSource(f.getValue().getAbsolutePath());
-            //**
-            Instances trainingDataSet = training.getDataSet();
-            Instances testDataSet = test.getDataSet();
-            //**
-            trainingDataSet.setClassIndex(trainingDataSet.numAttributes() - 1);
-            testDataSet.setClassIndex(testDataSet.numAttributes() - 1);
-            //**
-            Classifier classifier;
-            Class clazz;
             try {
                 clazz = Class.forName("weka.classifiers.functions." + classifierName);
                 classifier = (Classifier) clazz.newInstance();
@@ -84,38 +81,36 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
             }
             if (classifier != null) {
                 classifier.buildClassifier(trainingDataSet);
-                List<PredictionEntry> predictionResult = new LinkedList<PredictionEntry>();
-                int totals[] = countTotalBug(f.getValue(), predictionResult, db);
                 for (int i = 0; i < testDataSet.numInstances(); i++) {
+                    PredictionEntry pe = predictionResult.get(i);
+                    pe.addPredictionHeader(classifierName);
                     Double pred = classifier.classifyInstance(testDataSet.instance(i));
                     double[] probabilityandDistribution = classifier.distributionForInstance(testDataSet.instance(i));
-                    PredictionEntry pe = predictionResult.get(i);
-                    pe.setPrediction(pred);
-                    pe.setPredictionDensity(pred / pe.getLoc() * 1000);
+                    Prediction pd = new Prediction();
+                    pd.setPrediction(pred);
+                    pd.setPredictionDensity(pred / pe.getLoc() * 1000);
                     if (isProne) {
-                        pe.setPredictionProbability(probabilityandDistribution[pred.intValue()]);
+                        pd.setPredictionProbability(probabilityandDistribution[pred.intValue()]);
                     }
+                    pe.addPrediction(pd);
                 }
-                return predictionResult;
             } else {
                 throw new Exception("One of the classifier name is not correct check it out:" + classifierName);
             }
         }
-        return null;
+        return predictionResult;
     }
 
     private int[] countTotalBug(File file, List<PredictionEntry> predictionResult, Db db) throws FileNotFoundException {
-        CSVReader reader = new CSVReader(new FileReader(file), ',');
-        Iterator<String[]> iterator = reader.iterator();
-        iterator.next(); //skip header column
+        String headerFileName = file.getParent() + "/" + file.getName().substring(0, file.getName().indexOf("-test")) + "-header.csv";
+        LinkedList<String> classNameList = ResourceUtils.readHeaders(headerFileName);
         int totalLoc = 0;
         int totalBug = 0;
-        while (iterator.hasNext()) {
-            String[] next = iterator.next();
+        for (int i = 1; i < classNameList.size(); i++) {
             PredictionEntry entry = new PredictionEntry();
-            entry.setClassName(next[0]);
-            int bug = db.getBug(next[0]);
-            int loc = db.getLoc(next[0]);
+            entry.setClassName(classNameList.get(i));
+            int bug = db.getBug(entry.getClassName());
+            int loc = db.getLoc(entry.getClassName());
             totalBug += bug;
             totalLoc += loc;
             entry.setBug(bug);

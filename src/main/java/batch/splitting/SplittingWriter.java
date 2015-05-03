@@ -23,32 +23,50 @@ public class SplittingWriter implements ItemWriter<SplittingData> {
             String realName = s.getFile().getName().substring(0, s.getFile().getName().lastIndexOf("."));
             String fileNameTraining = projectFolderName + "/" + realName + "-training-bug-count.csv";
             String fileNameTest = projectFolderName + "/" + realName + "-test-bug-count.csv";
-            CSVWriter csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
-            csvWriter.writeAll(s.getTrainingList());
+            CSVWriter csvWriter = new CSVWriter(new FileWriter(projectFolderName + "/" + realName + "-header.csv"));
+            writeHeader(csvWriter, s.getTestList());
+            csvWriter.close();
+            csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
+            writeAll(csvWriter, s.getTrainingList());
             csvWriter.close();
             csvWriter = new CSVWriter(new FileWriter(fileNameTest));
-            csvWriter.writeAll(s.getTestList());
+            writeAll(csvWriter, s.getTestList());
             csvWriter.close();
             //Mode 2 Buggy
             fileNameTraining = projectFolderName + "/" + realName + "-training-buggy-class.csv";
             fileNameTest = projectFolderName + "/" + realName + "-test-buggy-class.csv";
             csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
-            csvWriter.writeAll(s.getTrainingListBuggy());
+            writeAll(csvWriter, s.getTrainingListBuggy());
             csvWriter.close();
             csvWriter = new CSVWriter(new FileWriter(fileNameTest));
-            csvWriter.writeAll(s.getTestListBuggy());
+            writeAll(csvWriter, s.getTestListBuggy());
             csvWriter.close();
             //Mode 3 Density
             fileNameTraining = projectFolderName + "/" + realName + "-training-bug-density.csv";
             fileNameTest = projectFolderName + "/" + realName + "-test-bug-density.csv";
             csvWriter = new CSVWriter(new FileWriter(fileNameTraining));
-            csvWriter.writeAll(s.getTrainingListDensity());
+            writeAll(csvWriter, s.getTrainingListDensity());
             csvWriter.close();
             csvWriter = new CSVWriter(new FileWriter(fileNameTest));
-            csvWriter.writeAll(s.getTestListDensity());
+            writeAll(csvWriter, s.getTestListDensity());
             csvWriter.close();
         }
     }
 
+    private void writeHeader(CSVWriter csvWriter, List<String[]> testList) {
+        for (String[] s : testList) {
+            String[] strings = new String[1];
+            System.arraycopy(s, 0, strings, 0, 1);
+            csvWriter.writeNext(strings);
+        }
+    }
+
+    private void writeAll(CSVWriter csvWriter, List<String[]> testList) {
+        for (String[] s : testList) {
+            String[] strings = new String[s.length - 1];
+            System.arraycopy(s, 1, strings, 0, s.length - 1);
+            csvWriter.writeNext(strings);
+        }
+    }
 
 }
