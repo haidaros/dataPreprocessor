@@ -7,6 +7,7 @@ import batch.model.CleaningData;
 import batch.model.PredictionData;
 import batch.model.PredictionModel;
 import batch.model.SplittingData;
+import batch.output.OutputReader;
 import batch.prediction.PredictionProcessor;
 import batch.prediction.PredictionReader;
 import batch.prediction.PredictionWriter;
@@ -65,5 +66,13 @@ public class BatchTester {
         System.out.println("yes");
         PredictionWriter writer = new PredictionWriter();
         writer.write(process);
+    }
+
+    @Test
+    public void testOutputStep() throws Exception {
+        OutputReader reader = new OutputReader();
+        List<File> read = reader.read();
+        System.out.println("tea");
+
     }
 }
