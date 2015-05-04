@@ -71,6 +71,14 @@
             <model>J48</model>
         </mode>
     </predictions>
+    <outputs>
+        <ceList>
+            <value>0.2</value>
+            <value>0.4</value>
+            <value>1.0</value>
+        </ceList>
+    </outputs>
+
 </configuration>
 
 

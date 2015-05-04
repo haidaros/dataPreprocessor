@@ -3,11 +3,10 @@ package batch;
 import batch.cleaning.CleaningProcessor;
 import batch.cleaning.CleaningReader;
 import batch.cleaning.CleaningWriter;
-import batch.model.CleaningData;
-import batch.model.PredictionData;
-import batch.model.PredictionModel;
-import batch.model.SplittingData;
+import batch.model.*;
+import batch.output.OutputProcessor;
 import batch.output.OutputReader;
+import batch.output.OutputWriter;
 import batch.prediction.PredictionProcessor;
 import batch.prediction.PredictionReader;
 import batch.prediction.PredictionWriter;
@@ -72,7 +71,10 @@ public class BatchTester {
     public void testOutputStep() throws Exception {
         OutputReader reader = new OutputReader();
         List<File> read = reader.read();
+        OutputProcessor outputProcessor = new OutputProcessor();
+        List<OutputData> process = outputProcessor.process(read);
+        OutputWriter writer = new OutputWriter();
+        writer.write(process);
         System.out.println("tea");
-
     }
 }
