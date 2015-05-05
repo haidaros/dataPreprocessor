@@ -94,9 +94,21 @@ public class OutputEntry {
         this.area = area;
     }
 
+    public String[] getArray(int i, int fileMode) {
+        if (fileMode == 0)
+            return getOptimalArray();
+        else if (fileMode == 1) {
+            return getArray(i);
+        } else if (fileMode == 2 || fileMode == 3) {
+            return getDensityandClassArray(i);
+        } else {
+            return getProneArray(i);
+        }
+    }
+
     public String[] getArray(int i) {
         DecimalFormat decimalFormat = new DecimalFormat("##.##");
-        String[] array = new String[3 + predictionNames.size() + 1];
+        String[] array = new String[8];
         array[0] = className;
         array[1] = String.valueOf(loc);
         array[2] = String.valueOf(bug);
@@ -104,6 +116,33 @@ public class OutputEntry {
         array[4] = String.valueOf(decimalFormat.format(percentageBug));
         array[5] = String.valueOf(predictions.get(i).getPrediction());
         array[6] = String.valueOf(decimalFormat.format(predictions.get(i).getPredictionDensity()));
+        array[7] = String.valueOf(area);
+        return array;
+    }
+
+    public String[] getDensityandClassArray(int i) {
+        DecimalFormat decimalFormat = new DecimalFormat("##.##");
+        String[] array = new String[7];
+        array[0] = className;
+        array[1] = String.valueOf(loc);
+        array[2] = String.valueOf(bug);
+        array[3] = String.valueOf(decimalFormat.format(percentageLoc));
+        array[4] = String.valueOf(decimalFormat.format(percentageBug));
+        array[5] = String.valueOf(predictions.get(i).getPrediction());
+        array[6] = String.valueOf(area);
+        return array;
+    }
+
+    public String[] getProneArray(int i) {
+        DecimalFormat decimalFormat = new DecimalFormat("##.##");
+        String[] array = new String[8];
+        array[0] = className;
+        array[1] = String.valueOf(loc);
+        array[2] = String.valueOf(bug);
+        array[3] = String.valueOf(decimalFormat.format(percentageLoc));
+        array[4] = String.valueOf(decimalFormat.format(percentageBug));
+        array[5] = String.valueOf(predictions.get(i).getPrediction());
+        array[6] = String.valueOf(predictions.get(i).getPredictionProbability());
         array[7] = String.valueOf(area);
         return array;
     }

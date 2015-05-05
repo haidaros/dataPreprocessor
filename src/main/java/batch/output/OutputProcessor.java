@@ -22,14 +22,22 @@ public class OutputProcessor implements ItemProcessor<List<File>, List<OutputDat
         for (File f : files) {
             if (f.getName().contains("bug-count.csv")) {
                 List<OutputEntry> outputEntries = new LinkedList<OutputEntry>();
-                int[] ints = readPredictionFile(f, outputEntries);
+                int[] ints = readPredictionFile(f, outputEntries, true, false);
+                list.add(new OutputData(outputEntries, f, ints[0], ints[1]));
+            } else if (f.getName().contains("bug-density.csv") || f.getName().contains("buggy-class.csv")) {
+                List<OutputEntry> outputEntries = new LinkedList<OutputEntry>();
+                int[] ints = readPredictionFile(f, outputEntries, false, false);
+                list.add(new OutputData(outputEntries, f, ints[0], ints[1]));
+            } else {
+                List<OutputEntry> outputEntries = new LinkedList<OutputEntry>();
+                int[] ints = readPredictionFile(f, outputEntries, false, true);
                 list.add(new OutputData(outputEntries, f, ints[0], ints[1]));
             }
         }
         return list;
     }
 
-    private int[] readPredictionFile(File f, List<OutputEntry> list) throws FileNotFoundException {
+    private int[] readPredictionFile(File f, List<OutputEntry> list, boolean isBugCount, boolean isProne) throws FileNotFoundException {
         CSVReader reader = new CSVReader(new FileReader(f), ';');
         Iterator<String[]> iterator = reader.iterator();
         List<String> classifierHeaders = parseHeader(iterator.next());
@@ -48,7 +56,10 @@ public class OutputProcessor implements ItemProcessor<List<File>, List<OutputDat
             for (String header : classifierHeaders) {
                 Prediction pr = new Prediction();
                 pr.setPrediction(Double.parseDouble(s[i++]));
-                pr.setPredictionDensity(1000 * pr.getPrediction() / pe.getLoc());
+                if (isBugCount)
+                    pr.setPredictionDensity(1000 * pr.getPrediction() / pe.getLoc());
+                if (isProne)
+                    pr.setPredictionProbability(Double.parseDouble(s[i++]));
                 pe.addPrediction(pr);
             }
             pe.setPredictionNames(classifierHeaders);
@@ -61,7 +72,8 @@ public class OutputProcessor implements ItemProcessor<List<File>, List<OutputDat
         int length = header.length;
         List<String> predictionHeaders = new LinkedList<String>();
         for (int i = 3; i < length; i++) {
-            predictionHeaders.add(header[i]);
+            if (!header[i].equals("Probabilty"))
+                predictionHeaders.add(header[i]);
         }
         return predictionHeaders;
     }
