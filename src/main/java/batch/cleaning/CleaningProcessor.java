@@ -2,10 +2,10 @@ package batch.cleaning;
 
 import batch.model.CleaningData;
 import batch.model.CleaningSpecialColumn;
+import batch.model.Column;
 import batch.model.DbItem;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
-import dataPreprocessor.Column;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.springframework.batch.item.ItemProcessor;
 import util.ResourceUtils;

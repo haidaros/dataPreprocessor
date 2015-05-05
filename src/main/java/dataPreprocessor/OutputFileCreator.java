@@ -5,10 +5,8 @@ import org.apache.poi.ss.usermodel.charts.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +41,6 @@ public class OutputFileCreator {
 
     public void createNumericalSheet(List<DataEntry> list, double[] ceList) throws Exception {
         uacForAlphas = new double[ceList.length];
-        FileInputStream fis = new FileInputStream(ResourceUtils.getPath("templateExcel.xls"));
         XSSFWorkbook wb = new XSSFWorkbook();
         List<Prediction> predictions = list.get(0).getPredictions();
         int predictionscount;
@@ -59,7 +56,6 @@ public class OutputFileCreator {
         legend.setPosition(LegendPosition.TOP);
         ScatterChartData data = chart.getChartDataFactory().createScatterChartData();
         ChartAxis bottomAxis = chart.getChartAxisFactory().createCategoryAxis(AxisPosition.BOTTOM);
-        bottomAxis.setNumberFormat("Percentage"); //todo  not working right now
         ValueAxis leftAxis = chart.getChartAxisFactory().createValueAxis(AxisPosition.LEFT);
         //Chart 2
         Sheet ceChartSheet = wb.createSheet("CEChart");

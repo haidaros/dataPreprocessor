@@ -383,8 +383,6 @@ public class DataExporter {
     }
 
     public void createResultFile(List<Double> predictionList, String headers) throws Exception {
-//        System.out.println("resultList = " + resultList.size());
-        FileInputStream fis = new FileInputStream("templateResult.xls");
         HSSFWorkbook wb = new HSSFWorkbook();
         HSSFSheet sheet = wb.getSheetAt(0);
         int rownum = 3;
