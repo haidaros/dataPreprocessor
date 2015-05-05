@@ -16,7 +16,6 @@ public class PredictionModel {
         for(int i = 0 ; i <mod.size();i++) {
             modes.add(String.valueOf(mod.get(i)));
         }
-        System.out.println("predictionName = " + predictionName);
     }
 
     public String getPredictionName() {

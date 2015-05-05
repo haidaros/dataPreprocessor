@@ -20,7 +20,6 @@ public class PredictionReader implements ItemReader<Map<File, File>> {
                 for (File ff : fileEntry.listFiles()) {
                     if (!ff.isDirectory() && ff.getName().contains(".csv") && ff.getName().contains("training")) {
                         String testFile = ff.getName().replaceAll("(training)", "test");
-                        System.out.println("testFile = " + testFile);
                         File file = new File(ff.getParent() + "/" + testFile);
                         if (file.exists())
                             files.put(ff, file);

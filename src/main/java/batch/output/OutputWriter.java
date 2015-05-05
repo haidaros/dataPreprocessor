@@ -3,9 +3,7 @@ package batch.output;
 import batch.model.OutputData;
 import batch.model.OutputEntry;
 import com.opencsv.CSVWriter;
-import org.apache.poi.ss.usermodel.Chart;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.charts.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -41,7 +39,8 @@ public class OutputWriter implements ItemWriter<OutputData> {
     private void createCSVs(OutputData o, String mainfolderName, double[] ces) throws IOException {
         XSSFWorkbook wb = new XSSFWorkbook();
         //----Chart Start----->
-        Drawing drawing = wb.createSheet("Chart").createDrawingPatriarch();
+        XSSFSheet chartSheet = wb.createSheet("Chart");
+        Drawing drawing = chartSheet.createDrawingPatriarch();
         ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 1, 1, 17, 35);
         Chart chart = drawing.createChart(anchor);
         ChartLegend legend = chart.getOrCreateLegend();
@@ -49,6 +48,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
         ChartAxis bottomAxis = chart.getChartAxisFactory().createCategoryAxis(AxisPosition.BOTTOM);
         ValueAxis leftAxis = chart.getChartAxisFactory().createValueAxis(AxisPosition.LEFT);
         ScatterChartData chartRow = chart.getChartDataFactory().createScatterChartData();
+        createRandomOrder(chartSheet, chartRow);
         //----Chart End----->
         List<String> predictionNames = o.getList().get(0).getPredictionNames();
         String projectName = o.getFile().getParentFile().getName();
@@ -79,7 +79,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
                     "ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Density", "Area"
             };
         } else if (fileMode == 1) {
-            return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "", "Prediction Density", "Area"};
+            return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction", "Prediction Density", "Area"};
         } else if (fileMode == 2) {
             return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction Density", "Area"};
         } else if (fileMode == 3) {
@@ -238,6 +238,23 @@ public class OutputWriter implements ItemWriter<OutputData> {
         ChartDataSource<Number> ys = DataSources.fromNumericCellRange(sheet, new CellRangeAddress(1, rowNum - 1, 4, 4));
         ScatterChartSeries scatterChartSeries = data.addSerie(xs, ys);
         scatterChartSeries.setTitle(sheetName);
+    }
+
+
+    private void createRandomOrder(XSSFSheet sheet, ScatterChartData data) {
+        Row rw = sheet.createRow(1);
+        Cell cell = rw.createCell(8);
+        cell.setCellValue("Random Order");
+        rw = sheet.createRow(2);
+        rw.createCell(7).setCellValue(0);
+        rw.createCell(8).setCellValue(0);
+        rw = sheet.createRow(3);
+        rw.createCell(7).setCellValue(1);
+        rw.createCell(8).setCellValue(1);
+        ChartDataSource<Number> xs = DataSources.fromNumericCellRange(sheet, new CellRangeAddress(2, 3, 7, 7));
+        ChartDataSource<Number> ys = DataSources.fromNumericCellRange(sheet, new CellRangeAddress(2, 3, 8, 8));
+        ScatterChartSeries lineChartSeries = data.addSerie(xs, ys);
+        lineChartSeries.setTitle("Random Order");
     }
 
     /*

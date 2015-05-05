@@ -22,7 +22,6 @@ public class PredictionWriter implements ItemWriter<PredictionData> {
         new File(mainfolderName).mkdir();
         for (PredictionData pd : predictionDatas) {
             String projectName = mainfolderName + "/" + pd.getFile().getParentFile().getName();
-            System.out.println("projectName = " + projectName);
             new File(projectName).mkdir();
             createOutput(projectName, pd.getFile(), pd.getPredictionEntries(), header);
             if (pd.getPronepredictionEntries() != null)

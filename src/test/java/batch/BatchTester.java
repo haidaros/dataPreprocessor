@@ -3,7 +3,10 @@ package batch;
 import batch.cleaning.CleaningProcessor;
 import batch.cleaning.CleaningReader;
 import batch.cleaning.CleaningWriter;
-import batch.model.*;
+import batch.model.CleaningData;
+import batch.model.OutputData;
+import batch.model.PredictionData;
+import batch.model.SplittingData;
 import batch.output.OutputProcessor;
 import batch.output.OutputReader;
 import batch.output.OutputWriter;
@@ -13,12 +16,9 @@ import batch.prediction.PredictionWriter;
 import batch.splitting.SplittingProcessor;
 import batch.splitting.SplittingReader;
 import batch.splitting.SplittingWriter;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.Test;
-import util.ResourceUtils;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,16 +26,6 @@ import java.util.Map;
  * Created by eg on 27/04/15.
  */
 public class BatchTester {
-    @Test
-    public void configTest() {
-        List<HierarchicalConfiguration> configList = ResourceUtils.getConfig().configurationsAt("predictions.mode");
-        List<PredictionModel> list = new LinkedList<PredictionModel>();
-        for (HierarchicalConfiguration c : configList) {
-            PredictionModel predictionModel = new PredictionModel(c.getString("name"), c.getList("model"));
-            list.add(predictionModel);
-        }
-    }
-
     @Test
     public void testCleaningStep() throws Exception {
         CleaningReader cleaningReader = new CleaningReader();
@@ -62,7 +52,6 @@ public class BatchTester {
         Map<File, File> read = reader.read();
         PredictionProcessor processor = new PredictionProcessor();
         List<PredictionData> process = processor.process(read);
-        System.out.println("yes");
         PredictionWriter writer = new PredictionWriter();
         writer.write(process);
     }
@@ -75,6 +64,21 @@ public class BatchTester {
         List<OutputData> process = outputProcessor.process(read);
         OutputWriter writer = new OutputWriter();
         writer.write(process);
-        System.out.println("tea");
+    }
+
+    @Test
+    public void testAllSteps() throws Exception {
+        System.out.println("Cleaning Step Started");
+        testCleaningStep();
+        System.out.println("Cleaning Step End");
+        System.out.println("Splitting Step Started");
+        testSplittingStep();
+        System.out.println("Splitting Step End");
+        System.out.println("Prediction Step Started");
+        testPredictionStep();
+        System.out.println("Prediction Step End");
+        System.out.println("Output Step Started");
+        testOutputStep();
+        System.out.println("All Tests end");
     }
 }
