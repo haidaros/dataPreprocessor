@@ -26,7 +26,7 @@ public class SplittingProcessor implements ItemProcessor<List<File>, List<Splitt
     }
 
     private SplittingData splitFile(File file, double splitRatio) throws Exception {
-        CSVReader reader = new CSVReader(new FileReader(file), ';');
+        CSVReader reader = new CSVReader(new FileReader(file));
         Iterator<String[]> iterator = reader.iterator();
         String[] headers = iterator.next();
         List<String[]> mainList = new LinkedList<String[]>();

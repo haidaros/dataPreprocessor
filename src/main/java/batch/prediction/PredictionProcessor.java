@@ -87,11 +87,17 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
                     Double pred = classifier.classifyInstance(testDataSet.instance(i));
                     double[] probabilityandDistribution = classifier.distributionForInstance(testDataSet.instance(i));
                     Prediction pd = new Prediction();
-                    pd.setPrediction(pred);
-                    pd.setPredictionDensity(pred / pe.getLoc() * 1000);
-                    if (isProne) {
-                        pd.setPredictionProbability(probabilityandDistribution[pred.intValue()]);
+                    if (isProne)
+                        pd.setPrediction(probabilityandDistribution[1]);
+                    else {
+                        pd.setPrediction(pred);
+                        pd.setPredictionDensity(pred / pe.getLoc() * 1000);
                     }
+                    /*we moved this above
+                    we wanted to get always probability of yes
+//                    if (isProne) {
+//                        pd.setPredictionProbability(probabilityandDistribution[pred.intValue()]);
+//                    }*/
                     pe.addPrediction(pd);
                 }
             } else {

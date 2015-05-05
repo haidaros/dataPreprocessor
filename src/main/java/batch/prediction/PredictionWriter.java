@@ -17,7 +17,7 @@ import java.util.List;
 public class PredictionWriter implements ItemWriter<PredictionData> {
     public void write(List<? extends PredictionData> predictionDatas) throws Exception {
         String[] header = {"ClassName", "Lines of Code", "Number Of Bugs", "Prediction"};
-        String[] headerProne = {"ClassName", "Lines of Code", "Number Of Bugs", "Prediction", "Prediction Probability"};
+        String[] headerProne = {"ClassName", "Lines of Code", "Number Of Bugs", "Probability"};
         String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/predictions";
         new File(mainfolderName).mkdir();
         for (PredictionData pd : predictionDatas) {
@@ -31,7 +31,7 @@ public class PredictionWriter implements ItemWriter<PredictionData> {
     }
 
     private void createOutput(String folderName, File f, List<PredictionEntry> predictionEntries, String[] header) throws IOException {
-        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName()), ';');
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName()));
         csvWriter.writeNext(predictionEntries.get(0).getHeaderArray());
         for (PredictionEntry p : predictionEntries) {
             csvWriter.writeNext(p.getArray());
@@ -40,7 +40,7 @@ public class PredictionWriter implements ItemWriter<PredictionData> {
     }
 
     private void createOutputProne(String folderName, File f, List<PredictionEntry> predictionEntries, String[] header) throws IOException {
-        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName().substring(0, f.getName().indexOf("-buggy")) + "-prone.csv"), ';');
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(folderName + "/" + f.getName().substring(0, f.getName().indexOf("-buggy")) + "-prone.csv"));
         csvWriter.writeNext(predictionEntries.get(0).getHeaderProneArray());
         for (PredictionEntry p : predictionEntries) {
             csvWriter.writeNext(p.getProneArray());

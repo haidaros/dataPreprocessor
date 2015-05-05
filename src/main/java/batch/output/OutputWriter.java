@@ -58,6 +58,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
         fileName = mainfolderName + "/" + projectName + "/" + fileName;
         //----Optimal Creation----->
         createOptimal(wb, "Optimal", fileName, o, getHeader(0), chartRow);
+        calculateAreaBelow(o.getList());
         double[] uacForAlphas = calculateCe(o.getList(), ces, true, null);
         o.setCeList(ces);
         o.setCeResult(new double[predictionNames.size()][ces.length]);
@@ -82,10 +83,8 @@ public class OutputWriter implements ItemWriter<OutputData> {
             return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction", "Prediction Density", "Area"};
         } else if (fileMode == 2) {
             return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction Density", "Area"};
-        } else if (fileMode == 3) {
-            return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction", "Area"};
         } else {
-            return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction", "Prediction Probability", "Area"};
+            return new String[]{"ClassName", "Lines of Code", "Actual number of Bugs", "Percentage of Locs", "Percentage of Bug", "Prediction", "Area"};
         }
     }
 
@@ -109,7 +108,6 @@ public class OutputWriter implements ItemWriter<OutputData> {
         CSVWriter writer = new CSVWriter(new FileWriter(pFileName), ';');
         Collections.sort(o.getList(), new OptimalComparer());
         fillPercentage(o.getList(), o.getTotalBug(), o.getTotalLoc());
-        calculateAreaBelow(o.getList());
         //CSV HEADER
         writer.writeNext(header);
         int rowNum = 0;
@@ -147,12 +145,8 @@ public class OutputWriter implements ItemWriter<OutputData> {
     private void sortFile(OutputData o, int predictionOrder, int fileMode) {
         if (fileMode == 1) {
             Collections.sort(o.getList(), new DensityComparer(predictionOrder));
-        } else if (fileMode == 2) {
-            Collections.sort(o.getList(), new PredictionComparer(predictionOrder));
-        } else if (fileMode == 3) {
-            Collections.sort(o.getList(), new PredictionComparer(predictionOrder));
         } else {
-            Collections.sort(o.getList(), new ProneComparer(predictionOrder));
+            Collections.sort(o.getList(), new PredictionComparer(predictionOrder));
         }
     }
 
@@ -177,8 +171,8 @@ public class OutputWriter implements ItemWriter<OutputData> {
             double x2 = e2.getPercentageLoc();
             double y1 = e1.getPercentageBug();
             double y2 = e2.getPercentageBug();
-            double estimatedPBug = y1 + ((alpha - x1) * (y2 - y1) / (x2 - x1));
-            double aucBx1andx2 = ((x1 - x2) * (y1 + y2)) / 2;
+            double estimatedPBug = y1 + (((alpha - x1) * (y2 - y1)) / (x2 - x1));
+            double aucBx1andx2 = ((x2 - x1) * (y1 + y2)) / 2;
             double aucx1andAlpha = (alpha - x1) * (y1 + estimatedPBug) / 2;
             double aucb0andfirst = list.get(0).getPercentageLoc() * list.get(0).getPercentageBug() / 2;
             double totalarea = 0;
@@ -190,6 +184,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
                 finalUacforAlpha = totalarea + aucb0andfirst;
             else
                 finalUacforAlpha = totalarea - aucBx1andx2 + aucx1andAlpha + aucb0andfirst;
+
             if (isOptimal) {
                 result[k] = finalUacforAlpha;
             } else {
@@ -239,7 +234,6 @@ public class OutputWriter implements ItemWriter<OutputData> {
         ScatterChartSeries scatterChartSeries = data.addSerie(xs, ys);
         scatterChartSeries.setTitle(sheetName);
     }
-
 
     private void createRandomOrder(XSSFSheet sheet, ScatterChartData data) {
         Row rw = sheet.createRow(1);

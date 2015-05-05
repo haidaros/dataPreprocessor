@@ -22,23 +22,23 @@ public class OutputProcessor implements ItemProcessor<List<File>, List<OutputDat
         for (File f : files) {
             if (f.getName().contains("bug-count.csv")) {
                 List<OutputEntry> outputEntries = new LinkedList<OutputEntry>();
-                int[] ints = readPredictionFile(f, outputEntries, true, false);
+                int[] ints = readPredictionFile(f, outputEntries, true);
                 list.add(new OutputData(outputEntries, f, ints[0], ints[1]));
             } else if (f.getName().contains("bug-density.csv") || f.getName().contains("buggy-class.csv")) {
                 List<OutputEntry> outputEntries = new LinkedList<OutputEntry>();
-                int[] ints = readPredictionFile(f, outputEntries, false, false);
+                int[] ints = readPredictionFile(f, outputEntries, false);
                 list.add(new OutputData(outputEntries, f, ints[0], ints[1]));
             } else {
                 List<OutputEntry> outputEntries = new LinkedList<OutputEntry>();
-                int[] ints = readPredictionFile(f, outputEntries, false, true);
+                int[] ints = readPredictionFile(f, outputEntries, false);
                 list.add(new OutputData(outputEntries, f, ints[0], ints[1]));
             }
         }
         return list;
     }
 
-    private int[] readPredictionFile(File f, List<OutputEntry> list, boolean isBugCount, boolean isProne) throws FileNotFoundException {
-        CSVReader reader = new CSVReader(new FileReader(f), ';');
+    private int[] readPredictionFile(File f, List<OutputEntry> list, boolean isBugCount) throws FileNotFoundException {
+        CSVReader reader = new CSVReader(new FileReader(f));
         Iterator<String[]> iterator = reader.iterator();
         List<String> classifierHeaders = parseHeader(iterator.next());
         int totalBug = 0;
@@ -58,8 +58,6 @@ public class OutputProcessor implements ItemProcessor<List<File>, List<OutputDat
                 pr.setPrediction(Double.parseDouble(s[i++]));
                 if (isBugCount)
                     pr.setPredictionDensity(1000 * pr.getPrediction() / pe.getLoc());
-                if (isProne)
-                    pr.setPredictionProbability(Double.parseDouble(s[i++]));
                 pe.addPrediction(pr);
             }
             pe.setPredictionNames(classifierHeaders);

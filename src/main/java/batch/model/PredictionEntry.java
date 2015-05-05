@@ -82,9 +82,8 @@ public class PredictionEntry {
         array[0] = className;
         array[1] = String.valueOf(loc);
         array[2] = String.valueOf(bug);
-        for (int i = 0; i < predictionNames.size() ; i++) {
-            array[3 + i * 2] = String.valueOf(predictions.get(i).getPrediction());
-            array[4 + i * 2] = String.valueOf(predictions.get(i).getPredictionProbability());
+        for (int i = 0; i < predictionNames.size(); i++) {
+            array[3 + i] = String.valueOf(predictions.get(i).getPrediction());
         }
         return array;
     }
@@ -112,13 +111,12 @@ public class PredictionEntry {
     }
 
     public String[] getHeaderProneArray() {
-        String[] array = new String[3 + predictionNames.size() * 2];
+        String[] array = new String[3 + predictionNames.size()];
         array[0] = "ClassName";
         array[1] = "Loc";
         array[2] = "Bug";
-        for (int i = 0; i < predictionNames.size();i++) {
-            array[3 + i * 2] = predictionNames.get(i);
-            array[4 + i * 2] = "Probabilty";
+        for (int i = 0; i < predictionNames.size(); i++) {
+            array[3 + i] = predictionNames.get(i);
         }
         return array;
     }

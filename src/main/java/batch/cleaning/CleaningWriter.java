@@ -20,8 +20,8 @@ public class CleaningWriter implements ItemWriter<CleaningData> {
             String projectFolderName = mainfolderName + "/" + c.getFile().getParentFile().getName();
             new File(projectFolderName).mkdir();
             String realName = c.getFile().getName().substring(0, c.getFile().getName().lastIndexOf("."));
-            String fileName = projectFolderName + "/" + realName + "-cleaned.csv";
-            CSVWriter csvWriter = new CSVWriter(new FileWriter(fileName), ';');
+            String fileName = projectFolderName + "/" + realName + ".csv";
+            CSVWriter csvWriter = new CSVWriter(new FileWriter(fileName));
             int i = 0;
             for (String[] s : c.getItemsInsideFile()) {
                 csvWriter.writeNext(s);
