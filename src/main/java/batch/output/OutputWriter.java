@@ -53,7 +53,6 @@ public class OutputWriter implements ItemWriter<OutputData> {
         List<String> predictionNames = o.getList().get(0).getPredictionNames();
         String projectName = o.getFile().getParentFile().getName();
         new File(mainfolderName + "/" + projectName).mkdir();
-        getHeader(getFileMode(o.getFile()));
         String fileName = o.getFile().getName().substring(0, o.getFile().getName().indexOf(".csv")) + "-result-";
         fileName = mainfolderName + "/" + projectName + "/" + fileName;
         //----Optimal Creation----->
@@ -165,12 +164,12 @@ public class OutputWriter implements ItemWriter<OutputData> {
                     }
                 }
             }
-            OutputEntry e1 = list.get(rowNumberAfterAlpha - 1);//the record just before the alpha
-            OutputEntry e2 = list.get(rowNumberAfterAlpha);//the record just after the alpha
-            double x1 = e1.getPercentageLoc();
-            double x2 = e2.getPercentageLoc();
-            double y1 = e1.getPercentageBug();
-            double y2 = e2.getPercentageBug();
+            OutputEntry entry1 = list.get(rowNumberAfterAlpha - 1);//the record just before the alpha
+            OutputEntry entry2 = list.get(rowNumberAfterAlpha);//the record just after the alpha
+            double x1 = entry1.getPercentageLoc();
+            double x2 = entry2.getPercentageLoc();
+            double y1 = entry1.getPercentageBug();
+            double y2 = entry2.getPercentageBug();
             double estimatedPBug = y1 + (((alpha - x1) * (y2 - y1)) / (x2 - x1));
             double aucBx1andx2 = ((x2 - x1) * (y1 + y2)) / 2;
             double aucx1andAlpha = (alpha - x1) * (y1 + estimatedPBug) / 2;

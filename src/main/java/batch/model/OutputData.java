@@ -70,8 +70,8 @@ public class OutputData {
         this.ceList = ceList;
     }
 
-    public void addCeResult(double[] doubles, int i) {
-        ceResult[i] = doubles;
+    public void addCeResult(double[] result, int classifierRowNum) {
+        ceResult[classifierRowNum] = result;
     }
 
     public String[] getCeHeader() {
