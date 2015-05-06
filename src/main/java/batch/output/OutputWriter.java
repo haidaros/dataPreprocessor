@@ -58,14 +58,13 @@ public class OutputWriter implements ItemWriter<OutputData> {
         fileName = mainfolderName + "/" + projectName + "/" + fileName;
         //----Optimal Creation----->
         createOptimal(wb, "Optimal", fileName, o, getHeader(0), chartRow);
-        calculateAreaBelow(o.getList());
-        double[] uacForAlphas = calculateCe(o.getList(), ces, true, null);
+        double[] aucForAlphas = calculateCe(o.getList(), ces, true, null);
         o.setCeList(ces);
         o.setCeResult(new double[predictionNames.size()][ces.length]);
         //----Other Classifiers Creation----->
         for (int i = 0; i < predictionNames.size(); i++) {
             createForaclassfier(wb, predictionNames.get(i), fileName, o, getHeader(getFileMode(o.getFile())), i, chartRow);
-            o.addCeResult(calculateCe(o.getList(), ces, false, uacForAlphas), i);
+            o.addCeResult(calculateCe(o.getList(), ces, false, aucForAlphas), i);
         }
         writeCe(o, wb, fileName);
         chart.plot(chartRow, bottomAxis, leftAxis);
@@ -108,6 +107,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
         CSVWriter writer = new CSVWriter(new FileWriter(pFileName), ';');
         Collections.sort(o.getList(), new OptimalComparer());
         fillPercentage(o.getList(), o.getTotalBug(), o.getTotalLoc());
+        calculateAreaBelow(o.getList());
         //CSV HEADER
         writer.writeNext(header);
         int rowNum = 0;
@@ -150,7 +150,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
         }
     }
 
-    private double[] calculateCe(List<OutputEntry> list, double[] ceList, boolean isOptimal, double[] uacForAlphas) {
+    private double[] calculateCe(List<OutputEntry> list, double[] ceList, boolean isOptimal, double[] aucForAlphas) {
         double[] result = new double[ceList.length];
         for (int k = 0; k < ceList.length; k++) {
             double alpha = ceList[k];
@@ -165,10 +165,8 @@ public class OutputWriter implements ItemWriter<OutputData> {
                     }
                 }
             }
-            
             OutputEntry e1 = list.get(rowNumberAfterAlpha - 1);//the record just before the alpha
             OutputEntry e2 = list.get(rowNumberAfterAlpha);//the record just after the alpha
-            
             double x1 = e1.getPercentageLoc();
             double x2 = e2.getPercentageLoc();
             double y1 = e1.getPercentageBug();
@@ -181,22 +179,23 @@ public class OutputWriter implements ItemWriter<OutputData> {
             for (int l = 0; l <= rowNumberAfterAlpha; l++) {
                 totalarea += list.get(l).getArea();
             }
-            double finalUacforAlpha;
+            double finalAucforAlpha;
             if (alpha == 1)
-                finalUacforAlpha = totalarea + aucb0andfirst;
+                finalAucforAlpha = totalarea + aucb0andfirst;
             else
-                finalUacforAlpha = totalarea - aucBx1andx2 + aucx1andAlpha + aucb0andfirst;
+                finalAucforAlpha = totalarea - aucBx1andx2 + aucx1andAlpha + aucb0andfirst;
 
             if (isOptimal) {
-                result[k] = finalUacforAlpha;
+                result[k] = finalAucforAlpha;
+
             } else {
                 double alphaarea = alpha * alpha / 2;
-                double CEforalpha = (finalUacforAlpha - alphaarea) / (uacForAlphas[k] - alphaarea);
+                double CEforalpha = (finalAucforAlpha - alphaarea) / (aucForAlphas[k] - alphaarea);
                 result[k] = CEforalpha;
             }
+
         }
         return result;
-
     }
 
     private void writeArray(XSSFSheet sheet, int rowNum, String[] values) {
