@@ -154,19 +154,21 @@ public class OutputWriter implements ItemWriter<OutputData> {
         double[] result = new double[ceList.length];
         for (int k = 0; k < ceList.length; k++) {
             double alpha = ceList[k];
-            int prediction = 0;
+            int rowNumberAfterAlpha = 0;
             if (alpha == 1)
-                prediction = list.size() - 1;
+                rowNumberAfterAlpha = list.size() - 1;
             else {
                 for (int i = 0; i < list.size(); i++) {
                     if (list.get(i).getPercentageLoc() >= alpha) {
-                        prediction = i;
+                        rowNumberAfterAlpha = i;
                         break;
                     }
                 }
             }
-            OutputEntry e1 = list.get(prediction);
-            OutputEntry e2 = list.get(prediction - 1);
+            
+            OutputEntry e1 = list.get(rowNumberAfterAlpha - 1);//the record just before the alpha
+            OutputEntry e2 = list.get(rowNumberAfterAlpha);//the record just after the alpha
+            
             double x1 = e1.getPercentageLoc();
             double x2 = e2.getPercentageLoc();
             double y1 = e1.getPercentageBug();
@@ -176,7 +178,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
             double aucx1andAlpha = (alpha - x1) * (y1 + estimatedPBug) / 2;
             double aucb0andfirst = list.get(0).getPercentageLoc() * list.get(0).getPercentageBug() / 2;
             double totalarea = 0;
-            for (int l = 0; l <= prediction; l++) {
+            for (int l = 0; l <= rowNumberAfterAlpha; l++) {
                 totalarea += list.get(l).getArea();
             }
             double finalUacforAlpha;
