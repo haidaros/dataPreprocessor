@@ -12,8 +12,14 @@ public class OptimalComparer implements Comparator<OutputEntry> {
     public int compare(OutputEntry o1, OutputEntry o2) {
         if (o1.getDensity() > o2.getDensity())
             return -1;
-        else if (o1.getDensity() == o2.getDensity())
-            return o1.getLoc() >= o2.getLoc() ? 1 : -1;
+        else if (o1.getDensity() == o2.getDensity()) {
+            if (o1.getLoc() > o2.getLoc())
+                return 1;
+            else if (o1.getLoc() < o2.getLoc())
+                return -1;
+            else
+                return 0;
+        }
         else
             return 1;
     }

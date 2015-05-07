@@ -17,9 +17,14 @@ public class DensityComparer implements Comparator<OutputEntry> {
     public int compare(OutputEntry o1, OutputEntry o2) {
         if (o1.getPredictions().get(predictionIndex).getPredictionDensity() > o2.getPredictions().get(predictionIndex).getPredictionDensity())
             return -1;
-        else if (o1.getPredictions().get(predictionIndex).getPredictionDensity() == o2.getPredictions().get(predictionIndex).getPredictionDensity())
-            return o1.getLoc() >= o2.getLoc() ? 1 : -1;
-        else
+        else if (o1.getPredictions().get(predictionIndex).getPredictionDensity() == o2.getPredictions().get(predictionIndex).getPredictionDensity()) {
+            if (o1.getLoc() > o2.getLoc())
+                return 1;
+            else if (o1.getLoc() < o2.getLoc())
+                return -1;
+            else
+                return 0;
+        } else
             return 1;
     }
 }
