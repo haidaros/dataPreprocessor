@@ -30,7 +30,7 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
         for (Map.Entry<File, File> f : files.entrySet()) {
             String projectName = f.getKey().getParentFile().getName();
             String folderName = ResourceUtils.getConfig().getString("input-path");
-            String dbName = new File(folderName).getParent() + "/cleaned" + "/" + projectName + "/db.csv";
+            String dbName = new File(folderName).getParent() + "/result/cleaned" + "/" + projectName + "/db.csv";
             Db db = ResourceUtils.readDB(dbName);
             predictionDatas.add(predictFile(f, modelList, db));
         }
@@ -65,7 +65,7 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
         //**
         Classifier classifier;
         Class clazz;
-        int totals[] = countTotalBug(f.getValue(), predictionResult, db);
+        countTotalBug(f.getValue(), predictionResult, db);
         for (String classifierName : model.getModes()) {
             try {
                 clazz = Class.forName("weka.classifiers.functions." + classifierName);
@@ -75,8 +75,12 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
                     clazz = Class.forName("weka.classifiers.trees." + classifierName);
                     classifier = (Classifier) clazz.newInstance();
                 } catch (Exception e) {
-                    clazz = Class.forName("weka.classifiers.lazy." + classifierName);
-                    classifier = (Classifier) clazz.newInstance();
+                    try {
+                        clazz = Class.forName("weka.classifiers.lazy." + classifierName);
+                        classifier = (Classifier) clazz.newInstance();
+                    } catch (Exception exa) {
+                        classifier = null;
+                    }
                 }
             }
             if (classifier != null) {
@@ -101,7 +105,7 @@ public class PredictionProcessor implements ItemProcessor<Map<File, File>, List<
                     pe.addPrediction(pd);
                 }
             } else {
-                throw new Exception("One of the classifier name is not correct check it out:" + classifierName);
+                System.out.println("One of the classifier name is not correct check it out:" + classifierName);
             }
         }
         return predictionResult;

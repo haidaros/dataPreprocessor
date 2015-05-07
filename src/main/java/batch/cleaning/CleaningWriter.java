@@ -14,7 +14,9 @@ import java.util.List;
  */
 public class CleaningWriter implements ItemWriter<CleaningData> {
     public void write(List<? extends CleaningData> cleaningDatas) throws Exception {
-        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/cleaned";
+        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/result";
+        new File(mainfolderName).mkdir();
+        mainfolderName = mainfolderName + "/cleaned";
         new File(mainfolderName).mkdir();
         for (CleaningData c : cleaningDatas) {
             String projectFolderName = mainfolderName + "/" + c.getFile().getParentFile().getName();

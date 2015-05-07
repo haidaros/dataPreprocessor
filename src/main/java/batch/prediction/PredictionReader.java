@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class PredictionReader implements ItemReader<Map<File, File>> {
     public Map<File, File> read() throws Exception {
-        String folderName = new File(ResourceUtils.getConfig().getString("input-path")).getParent() + "/splitted";
+        String folderName = new File(ResourceUtils.getConfig().getString("input-path")).getParent() + "/result/splitted";
         File folder = new File(folderName);
         Map<File, File> files = new HashMap<File, File>();
         for (final File fileEntry : folder.listFiles()) {

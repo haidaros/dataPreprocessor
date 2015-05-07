@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class SplittingWriter implements ItemWriter<SplittingData> {
     public void write(List<? extends SplittingData> splittingDatas) throws Exception {
-        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/splitted";
+        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/result/splitted";
         new File(mainfolderName).mkdir();
         for (SplittingData s : splittingDatas) {
             String projectFolderName = mainfolderName + "/" + s.getFile().getParentFile().getName();

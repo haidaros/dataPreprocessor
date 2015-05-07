@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class OutputReader implements ItemReader<List<File>> {
     public List<File> read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-        String folderName = new File(ResourceUtils.getConfig().getString("input-path")).getParent() + "/predictions";
+        String folderName = new File(ResourceUtils.getConfig().getString("input-path")).getParent() + "/result/predictions";
         File folder = new File(folderName);
         List<File> files = new ArrayList<File>();
         for (final File fileEntry : folder.listFiles()) {

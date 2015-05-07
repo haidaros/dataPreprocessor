@@ -83,7 +83,7 @@ public class PredictionEntry {
         array[1] = String.valueOf(loc);
         array[2] = String.valueOf(bug);
         for (int i = 0; i < predictionNames.size(); i++) {
-            array[3 + i] = String.valueOf(predictions.get(i).getPrediction());
+            array[3 + i] = String.valueOf(new DecimalFormat("##.###").format(predictions.get(i).getPrediction()));
         }
         return array;
     }
@@ -94,7 +94,7 @@ public class PredictionEntry {
         array[1] = String.valueOf(loc);
         array[2] = String.valueOf(bug);
         for (int i = 0; i < predictionNames.size(); i++) {
-            array[3 + i] = String.valueOf(new DecimalFormat("##.##").format(predictions.get(i).getPrediction()));
+            array[3 + i] = String.valueOf(new DecimalFormat("##.###").format(predictions.get(i).getPrediction()));
         }
         return array;
     }

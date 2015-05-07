@@ -81,7 +81,9 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         }
         //
         if (target.isFound() && loc.isFound()) {
-            String s = project.getParentFile().getParent() + "/cleaned";
+            String s = project.getParentFile().getParent() + "/result";
+            new File(s).mkdir();
+            s = s + "/cleaned";
             new File(s).mkdir();
             s = s + "/" + project.getName();
             new File(s).mkdir();
@@ -102,7 +104,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
     private List<String[]> cleanFile(File file, Map<String, String> rowsToRemoveMap,
                                      List<String> columnsToRemoveList, Map<String, String> classLocMap) throws Exception {
         //Getting loc headers and targetheaders
-        CSVReader reader = new CSVReader(new FileReader(file),';') ;
+        CSVReader reader = new CSVReader(new FileReader(file), ';');
         Iterator<String[]> iterator = reader.iterator();
         String[] columnNames = iterator.next();
         //Exporting Columns from file

@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class OutputWriter implements ItemWriter<OutputData> {
     public void write(List<? extends OutputData> outputDatas) throws Exception {
-        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/output";
+        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/result/output";
         new File(mainfolderName).mkdir();
         List<Object> ceList = ResourceUtils.getConfig().getList("outputs.ceList.value");
         double[] ces = new double[ceList.size()];

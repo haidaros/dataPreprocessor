@@ -18,7 +18,7 @@ public class PredictionWriter implements ItemWriter<PredictionData> {
     public void write(List<? extends PredictionData> predictionDatas) throws Exception {
         String[] header = {"ClassName", "Lines of Code", "Number Of Bugs", "Prediction"};
         String[] headerProne = {"ClassName", "Lines of Code", "Number Of Bugs", "Probability"};
-        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/predictions";
+        String mainfolderName = new File(ResourceUtils.getConfig().getString("input-path")).getParentFile().getAbsolutePath() + "/result/predictions";
         new File(mainfolderName).mkdir();
         for (PredictionData pd : predictionDatas) {
             String projectName = mainfolderName + "/" + pd.getFile().getParentFile().getName();
