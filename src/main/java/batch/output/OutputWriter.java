@@ -175,7 +175,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
             double aucx1andAlpha = (alpha - x1) * (y1 + estimatedPBug) / 2;
             double aucb0andfirst = list.get(0).getPercentageLoc() * list.get(0).getPercentageBug() / 2;
             double totalarea = 0;
-            for (int l = 0; l <= rowNumberAfterAlpha; l++) {
+            for (int l = 0; l < rowNumberAfterAlpha; l++) {
                 totalarea += list.get(l).getArea();
             }
             double finalAucforAlpha;
@@ -192,7 +192,6 @@ public class OutputWriter implements ItemWriter<OutputData> {
                 double CEforalpha = (finalAucforAlpha - alphaarea) / (aucForAlphas[k] - alphaarea);
                 result[k] = CEforalpha;
             }
-
         }
         return result;
     }

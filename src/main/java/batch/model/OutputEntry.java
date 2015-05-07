@@ -105,7 +105,7 @@ public class OutputEntry {
     }
 
     public String[] getArray(int i) {
-        DecimalFormat decimalFormat = new DecimalFormat("##.##");
+        DecimalFormat decimalFormat = new DecimalFormat("##.###");
         String[] array = new String[8];
         array[0] = className;
         array[1] = String.valueOf(loc);
@@ -119,7 +119,7 @@ public class OutputEntry {
     }
 
     public String[] getDensityandClassArray(int i) {
-        DecimalFormat decimalFormat = new DecimalFormat("##.##");
+        DecimalFormat decimalFormat = new DecimalFormat("##.###");
         String[] array = new String[7];
         array[0] = className;
         array[1] = String.valueOf(loc);
@@ -132,7 +132,7 @@ public class OutputEntry {
     }
 
     public String[] getOptimalArray() {
-        DecimalFormat decimalFormat = new DecimalFormat("##.##");
+        DecimalFormat decimalFormat = new DecimalFormat("##.###");
         String[] array = new String[7];
         array[0] = className;
         array[1] = String.valueOf(loc);
