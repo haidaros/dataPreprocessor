@@ -48,7 +48,7 @@ public class ResourceUtils {
 
     public static Db readDB(String dbName) {
         try {
-            CSVReader reader = new CSVReader(new FileReader(dbName), ';');
+            CSVReader reader = new CSVReader(new FileReader(dbName));            
             Iterator<String[]> iterator = reader.iterator();
             Map<String, String> locMap = new HashMap<String, String>();
             Map<String, String> targetMap = new HashMap<String, String>();
@@ -68,7 +68,7 @@ public class ResourceUtils {
     public static LinkedList<String> readHeaders(String dbName) {
         try {
             LinkedList<String> list = new LinkedList<String>();
-            CSVReader reader = new CSVReader(new FileReader(dbName), ';');
+            CSVReader reader = new CSVReader(new FileReader(dbName));
             Iterator<String[]> iterator = reader.iterator();
             while (iterator.hasNext()) {
                 String[] next = iterator.next();

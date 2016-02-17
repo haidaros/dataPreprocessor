@@ -88,7 +88,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
 
     private void writeCe(OutputData o, XSSFWorkbook wb, String filename) throws IOException {
         XSSFSheet sheet = wb.createSheet("ceResult");
-        CSVWriter writer = new CSVWriter(new FileWriter(filename + "ceResult.csv"), ';');
+        CSVWriter writer = new CSVWriter(new FileWriter(filename + "ceResult.csv"), ',');
         String[] ceHeader = o.getCeHeader();
         writer.writeNext(ceHeader);
         writeArray(sheet, 0, ceHeader);
@@ -103,7 +103,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
     private void createOptimal(XSSFWorkbook wb, String sheetName, String fileName, OutputData o, String[] header, ScatterChartData chartRow) throws IOException {
         XSSFSheet sheet = wb.createSheet(sheetName);
         String pFileName = fileName + sheetName + ".csv";
-        CSVWriter writer = new CSVWriter(new FileWriter(pFileName), ';');
+        CSVWriter writer = new CSVWriter(new FileWriter(pFileName), ',');
         Collections.sort(o.getList(), new OptimalComparer());
         fillPercentage(o.getList(), o.getTotalBug(), o.getTotalLoc());
         calculateAreaBelow(o.getList());
@@ -123,7 +123,7 @@ public class OutputWriter implements ItemWriter<OutputData> {
     private void createForaclassfier(XSSFWorkbook wb, String sheetName, String fileName, OutputData o, String[] header, int predictionOrder, ScatterChartData chartRow) throws IOException {
         XSSFSheet sheet = wb.createSheet(sheetName);
         String pFileName = fileName + sheetName + ".csv";
-        CSVWriter writer = new CSVWriter(new FileWriter(pFileName), ';');
+        CSVWriter writer = new CSVWriter(new FileWriter(pFileName), ',');
         int fileMode = getFileMode(o.getFile());
         sortFile(o, predictionOrder, fileMode);
         fillPercentage(o.getList(), o.getTotalBug(), o.getTotalLoc());

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <input-path>
-        /Users/eg/Desktop/Projects/dataPreprocessor/src/test/resources/datasets
+		/Users/haidaros/Experiments
     </input-path>
     <cleanup>
         <rows-to-remove>

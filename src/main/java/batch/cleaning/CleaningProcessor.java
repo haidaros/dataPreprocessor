@@ -87,7 +87,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             new File(s).mkdir();
             s = s + "/" + project.getName();
             new File(s).mkdir();
-            CSVWriter csvWriter = new CSVWriter(new FileWriter(s + "/db.csv"), ';');
+            CSVWriter csvWriter = new CSVWriter(new FileWriter(s + "/db.csv"), ',');
             String[] fileHeader = {"classname", "loc", "bug"};
             csvWriter.writeNext(fileHeader);
             for (DbItem item : dbItemList) {
@@ -104,7 +104,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
     private List<String[]> cleanFile(File file, Map<String, String> rowsToRemoveMap,
                                      List<String> columnsToRemoveList, Map<String, String> classLocMap) throws Exception {
         //Getting loc headers and targetheaders
-        CSVReader reader = new CSVReader(new FileReader(file), ';');
+        CSVReader reader = new CSVReader(new FileReader(file));
         Iterator<String[]> iterator = reader.iterator();
         String[] columnNames = iterator.next();
         //Exporting Columns from file
@@ -148,7 +148,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
         File[] files = file.getParentFile().listFiles();
         for (File f : files) {
             if (!f.isDirectory() && f.getName().contains(".csv") && !f.getName().equals(file.getName())) {
-                CSVReader reader = new CSVReader(new FileReader(f), ';');
+                CSVReader reader = new CSVReader(new FileReader(f));
                 Iterator<String[]> iterator = reader.iterator();
                 String[] headers = iterator.next();
                 int i = 0;
@@ -219,7 +219,7 @@ public class CleaningProcessor implements ItemProcessor<List<File>, List<Cleanin
             }
         }
         if (!targetFound)
-            throw new Exception("Target is not exist on this file" + file);
+            throw new Exception("Target column does not exist in this file " + file);
 
         for (Column c : columnNames) {
             for (Map.Entry<String, String> entry : rowsToRemoveMap.entrySet()) {
